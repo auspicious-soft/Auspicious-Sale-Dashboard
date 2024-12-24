@@ -1,38 +1,24 @@
 "use client";
 import { dashboradPage, getLeadStatus, updateLeadStatus } from "@/services/admin/admin-service";
-import { ButtonIcon, EditIcon, NextLabel, PreviousLabel } from "@/utils/svgicons";
+import { ButtonIcon, EditIcon } from "@/utils/svgicons";
 import React, { useState } from "react";
-import ReactPaginate from "react-paginate";
 import { toast } from "sonner";
 import useSWR from "swr";
 
 const RecentLeads: React.FC = () => {
-  const [query, setQuery] = useState('page=1&limit=10');
+  const [query, setQuery] = useState("page=1&limit=10");
   const { data, error, isLoading, mutate } = useSWR(
     `/admin/dashboard?${query}`,
     dashboradPage
-  ); 
+  );
   const dashboardData = data?.data?.data;
   const tabledata = dashboardData?.recentProjectDetails;
 
-  const { data:getLeadStatusdata, error:getLeadStatuserror, isLoading:getLeadStatusisLoading, mutate:getLeadStatusmutate } = useSWR(
-    "/admin/status",
-    getLeadStatus
-  ); 
- 
+  const { data: getLeadStatusdata } = useSWR("/admin/status", getLeadStatus);
   const getLeadStatusData = getLeadStatusdata?.data?.data;
-  
-  const [currentPage, setCurrentPage] = useState(0);
-  const [selectedProject, setSelectedProject] = useState<any>(null); // Explicitly typing the state
+
+  const [selectedProject, setSelectedProject] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const rowsPerPage = 12;
-  const total = tabledata?.lenth || 0; // Dynamic total count from API data
-
-  const handlePageClick = (selectedItem: { selected: number }) => {
-    const newPage = selectedItem.selected + 1;
-    setQuery(`page=${newPage}&limit=${rowsPerPage}`);
-  };
 
   const handleInputChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -49,11 +35,11 @@ const RecentLeads: React.FC = () => {
 
     try {
       const response = await updateLeadStatus(`/admin/lead/${id}`, {
-        statusId: selectedStatus._id, // Send the selected status ID
-      }); 
+        statusId: selectedStatus._id,
+      });
       if (response.status === 200) {
         toast.success("Status updated successfully");
-        mutate(); // Re-fetch the data to reflect changes
+        mutate();
       } else {
         toast.error("Failed to update status");
       }
@@ -61,7 +47,7 @@ const RecentLeads: React.FC = () => {
       toast.error("Error updating status");
     }
   };
-  
+
   const openModal = (row: any) => {
     setSelectedProject(row);
     setIsModalOpen(true);
@@ -76,29 +62,35 @@ const RecentLeads: React.FC = () => {
     <>
       <div className="p-3 md:p-7 bg-white rounded-2xl flex items-center flex-col justify-between">
         <div className="w-full flex items-center justify-between gap-4 mb-6 flex-wrap">
-          <h3 className="text-[20px] font-RalewaySemiBold">Recent Leads</h3> 
-          <a className="button-all" href="/record-new-lead"><ButtonIcon /> Record New Lead</a>
+          <h3 className="text-[20px] font-RalewaySemiBold">Recent Leads</h3>
+          <a className="button-all" href="/record-new-lead">
+            <ButtonIcon /> Record New Lead
+          </a>
         </div>
 
         <div className="table-common overflow-custom w-full">
-          <table>
-            <thead>
-              <tr>
-                <th>Name of Client</th>
-                <th>Name of Bidder</th>
-                <th>Platform</th>
-                <th>Tech</th>
-                <th>Contract Type</th>
-                <th>Email Address</th>
-                <th>Status</th>
-                <th>
-                  <div className="flex justify-center gap-[6px]">Action</div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tabledata?.length > 0 ? (
-                tabledata.map((row: any) => (
+          {isLoading ? (
+            <p className="text-center">Loading...</p> // Show loading message
+          ) : tabledata?.length === 0 ? (
+            <p className="text-center">No data found</p> // Show no data message
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Name of Client</th>
+                  <th>Name of Bidder</th>
+                  <th>Platform</th>
+                  <th>Tech</th>
+                  <th>Contract Type</th>
+                  <th>Email Address</th>
+                  <th>Status</th>
+                  <th>
+                    <div className="flex justify-center gap-[6px]">Action</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {tabledata.map((row: any) => (
                   <tr key={row?._id}>
                     <td>{row?.clientname}</td>
                     <td>{row?.userId.fullName}</td>
@@ -109,7 +101,7 @@ const RecentLeads: React.FC = () => {
                     <td>
                       <select
                         value={row?.statusId.name}
-                        onChange={(e) => handleInputChange(e, row?._id)} // Pass event first
+                        onChange={(e) => handleInputChange(e, row?._id)}
                         className={`px-2 py-1 rounded-full text-[#1C2329] text-[12px] ${
                           row?.statusId.name === "In Discussion"
                             ? "bg-[#83E6F8]"
@@ -139,93 +131,33 @@ const RecentLeads: React.FC = () => {
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    className="w-full flex justify-center p-3 items-center"
-                    colSpan={8}
-                  >
-                    <p className="text-center">No data found</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="text-right mt-4 w-full">
-          <ReactPaginate
-            previousLabel={<PreviousLabel />}
-            nextLabel={<NextLabel />}
-            breakLabel={"..."}
-            pageCount={Math.ceil(total / rowsPerPage)}
-            onPageChange={handlePageClick}
-            containerClassName={"inline-flex mt-[34px] gap-1"}
-            pageClassName={
-              "text-[#3C3F88] border border-{#F1F1F1} bg-white rounded-full"
-            }
-            pageLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block"
-            }
-            activeClassName={"!bg-[#1657FF] active rounded-full text-white"}
-            previousClassName={"leading-[normal]"}
-            previousLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block border border-{#F1F1F1} bg-white rounded-full"
-            }
-            nextLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block border border-{#F1F1F1} bg-white rounded-full"
-            }
-            disabledClassName={"opacity-50 cursor-not-allowed"}
-          />
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
       {isModalOpen && selectedProject && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-[20px] md:p-[40px] rounded-[20px] w-[94%] max-w-[850px] max-h-[94vh] overflow-y-auto">
             <div className="modal-header flex justify-between gap-3 flex-col md:flex-row">
-                <h2>{selectedProject?.clientname}</h2>
-                <div>
-                  <p>Bidder</p>
-                  <h3> {selectedProject?.userId.fullName}</h3>
-                </div>
+              <h2>{selectedProject?.clientname}</h2>
+              <div>
+                <p>Bidder</p>
+                <h3>{selectedProject?.userId.fullName}</h3>
+              </div>
             </div>
             <div className="grid-box gap-3 mt-6">
-               <div className="detail-card">
-                 <p>Phone Number</p>
-                 <h3>{selectedProject?.clientphone}</h3>
-               </div>
-               <div className="detail-card">
-                 <p>Email Address</p>
-                 <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
-               </div>
+              <div className="detail-card">
+                <p>Phone Number</p>
+                <h3>{selectedProject?.clientphone}</h3>
+              </div>
+              <div className="detail-card">
+                <p>Email Address</p>
+                <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
+              </div>
             </div>
-            <div className="grid-box gap-3">
-               <div className="detail-card">
-                 <p>Date of lead</p>
-                 <h3>{selectedProject?.date}</h3>
-               </div>
-               <div className="detail-card">
-                 <p>Platform</p>
-                 <h3>{selectedProject?.platform?.name || "N/A"}</h3>
-               </div>
-            </div>
-            <div className="grid-box gap-3">
-               <div className="detail-card">
-                 <p>Technology</p>
-                 <h3>{selectedProject?.technology.name}</h3>
-               </div>
-               <div className="detail-card">
-                 <p>Status</p>
-                 <h3>{selectedProject.statusId.name}</h3>
-               </div>
-            </div>
-            <div className="detail-card">
-                 <p>Notes</p>
-                 <p  className="!text-[14px]" >{selectedProject?.notes}</p>
-               </div>
             <div className="flex w-full justify-center gap-3">
               <button
                 onClick={closeModal}

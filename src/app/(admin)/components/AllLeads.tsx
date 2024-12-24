@@ -136,7 +136,6 @@ const RecentLeads: React.FC = () => {
             </table>
           )}
         </div>
-        {!isLoading && tabledata.length > 0 && (
         <div className="text-right mt-4 w-full">
           <ReactPaginate
             previousLabel={<PreviousLabel />}
@@ -150,7 +149,7 @@ const RecentLeads: React.FC = () => {
             }
             pageLinkClassName={
               "grid place-items-center h-10 w-10 inline-block"
-            }
+            } 
             activeClassName={"!bg-[#1657FF] active rounded-full text-white"}
             previousClassName={"leading-[normal]"}
             previousLinkClassName={
@@ -162,7 +161,6 @@ const RecentLeads: React.FC = () => {
             disabledClassName={"opacity-50 cursor-not-allowed"} 
           />
         </div>
-         )}
       </div>
 
       {/* Modal */}
