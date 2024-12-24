@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import React, { ChangeEvent, FormEvent, useState, useTransition } from "react";
 import Notification from "../components/Notification";
 import { SubmitButton } from "@/utils/svgicons";
@@ -16,7 +16,6 @@ const contractType = [
 ];
 
 const AddNewLead: React.FC = () => {
-  // console.log('data:', data);
   const [notification, setNotification] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -24,39 +23,36 @@ const AddNewLead: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<any>(null);
   const [selectedTechnology, setSelectedTechnology] = useState<any>(null);
   const [selectedStatus, setSelectedStatus] = useState<any>(null);
-  const [selectedContractType, setsetSelectedContractType] = useState<any>(null);
+  const [selectedContractType, setSelectedContractType] = useState<any>(null);
 
   const { data, error, isLoading, mutate } = useSWR(
     `/admin/lead-data`,
     createGetLeadServices
   );
+
   const createLeadusers = data?.data?.data?.users;
-  const bidders =
-    createLeadusers?.map((user: any) => ({
-      label: `${user?.fullName}`,
-      value: `${user?._id}`,
-    })) || [];
+  const bidders = createLeadusers?.map((user: any) => ({
+    label: `${user?.fullName}`,
+    value: `${user?._id}`,
+  })) || [];
 
   const createLeadPlatform = data?.data?.data?.platform;
-  const platform =
-    createLeadPlatform?.map((platform: any) => ({
-      label: `${platform?.name}`,
-      value: `${platform?._id}`,
-    })) || [];
+  const platform = createLeadPlatform?.map((platform: any) => ({
+    label: `${platform?.name}`,
+    value: `${platform?._id}`,
+  })) || [];
 
   const createLeadTechnology = data?.data?.data?.technology;
-  const technology =
-    createLeadTechnology?.map((technology: any) => ({
-      label: `${technology?.name}`,
-      value: `${technology?._id}`,
-    })) || [];
+  const technology = createLeadTechnology?.map((technology: any) => ({
+    label: `${technology?.name}`,
+    value: `${technology?._id}`,
+  })) || [];
 
   const createLeadStatus = data?.data?.data?.status;
-  const status =
-    createLeadStatus?.map((status: any) => ({
-      label: `${status?.name}`,
-      value: `${status?._id}`,
-    })) || [];
+  const status = createLeadStatus?.map((status: any) => ({
+    label: `${status?.name}`,
+    value: `${status?._id}`,
+  })) || [];
 
   const [formData, setFormData] = useState<any>({
     clientname: "",
@@ -75,46 +71,43 @@ const AddNewLead: React.FC = () => {
   });
 
   const handleContractType = (selected: any) => {
-    setsetSelectedContractType(selected);
-    // Set the userId when a user is selected
+    setSelectedContractType(selected);
     setFormData({
       ...formData,
-      contracttype: selected.map((option: any)=> option.value)
-      })
+      contracttype: selected.value,
+    });
   };
+
   const handleStatusChange = (selected: any) => {
     setSelectedStatus(selected);
-    // Set the userId when a user is selected
     setFormData({
       ...formData,
-      statusId: selected.map((option: any)=> option.value)
-      })
+      statusId: selected.value,
+    });
   };
+
   const handleTechnologyChange = (selected: any) => {
     setSelectedTechnology(selected);
-    // Set the userId when a user is selected
     setFormData({
       ...formData,
-      technology: selected.map((option: any)=> option.value)
-      })
+      technology: selected.value,
+    });
   };
+
   const handlePlatformChange = (selected: any) => {
     setSelectedPlatform(selected);
-    console.log('selected:', selected);
-    // Set the userId when a user is selected
     setFormData({
       ...formData,
-      platform: selected.value
-    })
-    console.log('platform:', platform);
+      platform: selected.value,
+    });
   };
+
   const handleBidderChange = (selected: any) => {
     setSelectedBidder(selected);
-    // Set the userId when a user is selected
     setFormData({
       ...formData,
-      userId: selected.map((option: any)=> option.value)
-      })
+      userId: selected.value,
+    });
   };
 
   const handleInputChange = (
@@ -123,32 +116,67 @@ const AddNewLead: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prevFormData: any) => ({
       ...prevFormData,
-      [name]: value, // Update the specific field by name
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("formData:", formData);
 
-    const newLeadsData = {
-      ...formData,
-  
+    // Create payload based on contract type
+    const payload = {
+      clientname: formData.clientname,
+      clientemail: formData.clientemail,
+      clientphone: formData.clientphone,
+      userId: formData.userId,
+      date: formData.date,
+      platform: formData.platform,
+      technology: formData.technology,
+      statusId: formData.statusId,
+      notes: formData.notes,
+      contracttype: formData.contracttype,
     };
-    console.log("newLeadsData:", newLeadsData);
-    try {
-      const response = await createNewLead(`/admin/lead`, newLeadsData);
-      console.log("newLeadsData:", newLeadsData);
 
+    // Add appropriate cost fields based on contract type
+    // if (formData.contracttype === "Fixed") {
+    //   payload.fixedprice = formData.fixedprice;
+    // } else if (formData.contracttype === "Hourly") {
+    //   payload.noofhours = formData.noofhours;
+    //   payload.costperhour = formData.costperhour;
+    //}
+
+    try {
+      const response = await createNewLead(`/admin/lead`, payload);
       if (response.status === 201) {
-        toast.success("Attachment added successfully");
+        toast.success("Lead added successfully");
         mutate();
+        // Reset form
+        setFormData({
+          clientname: "",
+          clientemail: "",
+          clientphone: "",
+          userId: "",
+          date: "",
+          platform: "",
+          technology: "",
+          statusId: "",
+          notes: "",
+          contracttype: "",
+          fixedprice: "",
+          noofhours: "",
+          costperhour: "",
+        });
+        setSelectedBidder(null);
+        setSelectedPlatform(null);
+        setSelectedTechnology(null);
+        setSelectedStatus(null);
+        setSelectedContractType(null);
       } else {
-        toast.error("Failed to add attachment");
+        toast.error("Failed to add lead");
       }
     } catch (error) {
-      console.error("Error adding attachment", error);
-      toast.error("An error occurred while adding the attachment");
+      console.error("Error adding lead", error);
+      toast.error("An error occurred while adding the lead");
     }
   };
 

@@ -31,4 +31,11 @@ export const createNewLead = async (route: string, payload: any) => {
     const axiosInstance = await getAxiosInstance(true);
     return axiosInstance.post(route, payload);
   };
-
+  export const createBidStatus = async (route: string, payload: any) => {
+    const axiosInstance = await getAxiosInstance();
+    return axiosInstance.post(route, payload);
+}
+export const updateBidStatus = async (route: string, payload: any) => {
+    const axiosInstance = await getAxiosInstance();
+    return axiosInstance.patch(route, payload);
+}
