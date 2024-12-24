@@ -20,15 +20,15 @@ const Page: React.FC = () => {
   useEffect(() => {
     if (session) {
       if ((session as any)?.user?.role === "user") {
-        window.location.href = "/customer/dashboard"
+        window.location.href = "/dashboard"
       } else {
-        window.location.href = "/admin/dashboard"
+        window.location.href = "/dashboard"
       }
     }
   }, [router, session]);
 
 const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); 
   
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let loginFieldType = '';
@@ -95,16 +95,6 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
                   />
 
                   <div className="mt-[-10px] mb-[50px] flex justify-between items-center">
-                    <label htmlFor="" className="text-[#353E6C] text-[14px] ">
-                      {/* <input type="checkbox" name="" id="" className="mr-[10px]" /> */}
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={() => setRememberMe(!rememberMe)}
-                        className="mr-[10px]"
-                      />
-                      Keep me logged in
-                    </label>
 
                     <Link
                       href="/forgotpassword"
@@ -115,9 +105,7 @@ const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
                   </div>
 
                   <button type="submit" className="login-button w-full">
-                    <a href="/dashboard">
                     {!isPending ? "Log In" : "Logging In"}
-                    </a>
                   </button>
 
                 </form>

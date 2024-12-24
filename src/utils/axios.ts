@@ -16,7 +16,7 @@ const createAuthInstance = async () => {
             baseURL: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`,
             headers: {
                 Authorization: `Bearer ${token}`,
-                // ...(adminRole && {'role' : 'admin'}), 
+                'role' : 'admin',
                 'Content-Type': 'application/json'
             },
         })

@@ -54,11 +54,9 @@ function PasswordForm() {
     <form onSubmit={handleSubmit}>
       <div className="mb-2 md:mb-[17px]">
         <InputField type='password' name="newPassword" placeholder="Create Password" id="newPassword" />
-        {/* <input type="password" name="newPassword" placeholder="Create Password" id="newPassword" /> */}
       </div>
       <div className="mb-4 md:mb-[24px]">
         <InputField type='password' name="confirmPassword" placeholder="Confirm Password" id="confirmPassword" />
-        {/* <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword" /> */}
       </div>
       <button disabled={isPending} type="submit" className="login-button mt-[50px] w-full">
       Change Password

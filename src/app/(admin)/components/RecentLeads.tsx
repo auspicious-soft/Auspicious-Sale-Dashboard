@@ -1,96 +1,69 @@
 "use client";
+import { dashboradPage, getLeadStatus, updateLeadStatus } from "@/services/admin/admin-service";
 import { ButtonIcon, EditIcon, NextLabel, PreviousLabel } from "@/utils/svgicons";
 import React, { useState } from "react";
 import ReactPaginate from "react-paginate";
-
-// Define the type for your project
-interface Project {
-  _id: string;
-  clienttName: string;
-  bidderName: string;
-  platform: string;
-  tech: string;
-  contractType: string;
-  emailAddress: string;
-  phoneNumber: string;
-  status: string;
-  dateOflead: string;
-  NoHours: string;
-  NoRate: string,
-  notes: string,
-
-}
+import { toast } from "sonner";
+import useSWR from "swr";
 
 const RecentLeads: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      _id: "1",
-      clienttName: "Justin Vaccaro",
-      bidderName: "Varun Singh",
-      platform: "Whatsapp",
-      tech: "2024-Mobile Application",
-      contractType: "Fixed",
-      emailAddress: "alfonso@dummymail.com",
-      phoneNumber: "+1 (555) 345-6789", 
-      status: "In Discussion",
-      dateOflead: "10 July 2024", 
-      NoHours: "30",
-      NoRate: "20",
-      notes: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in",
-    },
-    {
-      _id: "2",
-      clienttName: "Marcus Septimus",
-      bidderName: "Simran",
-      platform: "Upwork",
-      tech: "Web Development",
-      contractType: "Hourly",
-      emailAddress: "alfonso@dummymail.com",   
-      phoneNumber: "+1 (555) 345-6789", 
-      status: "Hired by Else",
-      dateOflead: "24 July 2024",
-      NoHours: "40",
-      NoRate: "30",
-      notes: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in",  
-    },
-    {
-      _id: "3",
-      clienttName: "Marcus Septimus",
-      bidderName: "Simran",
-      platform: "Upwork",
-      tech: "Web Development",
-      contractType: "Hourly",
-      emailAddress: "alfonso@dummymail.com",   
-      phoneNumber: "+1 (555) 345-6789", 
-      status: "Hired",
-      dateOflead: "24 July 2024",
-      NoHours: "40",
-      NoRate: "30",
-      notes: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in",  
-    },
-    
-  ]);
+  const [query, setQuery] = useState('page=1&limit=10');
+  const { data, error, isLoading, mutate } = useSWR(
+    `/admin/dashboard?${query}`,
+    dashboradPage
+  ); 
+  const dashboardData = data?.data?.data;
+  const tabledata = dashboardData?.recentProjectDetails;
 
+  const { data:getLeadStatusdata, error:getLeadStatuserror, isLoading:getLeadStatusisLoading, mutate:getLeadStatusmutate } = useSWR(
+    "/admin/status",
+    getLeadStatus
+  ); 
+ 
+  const getLeadStatusData = getLeadStatusdata?.data?.data;
+  
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Explicitly typing the state
+  const [selectedProject, setSelectedProject] = useState<any>(null); // Explicitly typing the state
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const rowsPerPage = 12;
-  const total = projects.length;
+  const total = tabledata?.lenth || 0; // Dynamic total count from API data
 
   const handlePageClick = (selectedItem: { selected: number }) => {
-    setCurrentPage(selectedItem.selected);
+    const newPage = selectedItem.selected + 1;
+    setQuery(`page=${newPage}&limit=${rowsPerPage}`);
   };
 
-  const handleStatusChange = (id: string, newStatus: string) => {
-    const updatedProjects = projects.map((project) =>
-      project._id === id ? { ...project, status: newStatus } : project
+  const handleInputChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    id: string
+  ) => {
+    const selectedStatus = getLeadStatusData?.status.find(
+      (status: any) => status.name === e.target.value
     );
-    setProjects(updatedProjects);
-  };
 
-  const openModal = (project: Project) => {
-    setSelectedProject(project);
+    if (!selectedStatus) {
+      toast.error("Invalid status selected");
+      return;
+    }
+
+    try {
+      const response = await updateLeadStatus(`/admin/lead/${id}`, {
+        statusId: selectedStatus._id, // Send the selected status ID
+      }); 
+      if (response.status === 200) {
+        toast.success("Status updated successfully");
+        mutate(); // Re-fetch the data to reflect changes
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch (error) {
+      toast.error("Error updating status");
+    }
+  };
+  
+  const openModal = (row: any) => {
+    setSelectedProject(row);
     setIsModalOpen(true);
   };
 
@@ -98,11 +71,6 @@ const RecentLeads: React.FC = () => {
     setSelectedProject(null);
     setIsModalOpen(false);
   };
-
-  const displayedProjects = projects.slice(
-    currentPage * rowsPerPage,
-    (currentPage + 1) * rowsPerPage
-  );
 
   return (
     <>
@@ -129,36 +97,38 @@ const RecentLeads: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {displayedProjects.length > 0 ? (
-                displayedProjects.map((row) => (
-                  <tr key={row._id}>
-                    <td>{row.clienttName}</td>
-                    <td>{row.bidderName}</td>
-                    <td>{row.platform}</td>
-                    <td>{row.tech}</td>
-                    <td>{row.contractType}</td>
-                    <td>{row.emailAddress}</td>
+              {tabledata?.length > 0 ? (
+                tabledata.map((row: any) => (
+                  <tr key={row?._id}>
+                    <td>{row?.clientname}</td>
+                    <td>{row?.userId.fullName}</td>
+                    <td>{row?.platform.name}</td>
+                    <td>{row?.technology.name}</td>
+                    <td>{row?.contracttype}</td>
+                    <td>{row?.clientemail}</td>
                     <td>
                       <select
-                        value={row.status}
-                        onChange={(e) => handleStatusChange(row._id, e.target.value)}
+                        value={row?.statusId.name}
+                        onChange={(e) => handleInputChange(e, row?._id)} // Pass event first
                         className={`px-2 py-1 rounded-full text-[#1C2329] text-[12px] ${
-                          row.status === "In Discussion"
+                          row?.statusId.name === "In Discussion"
                             ? "bg-[#83E6F8]"
-                            : row.status === "Hired by Else"
+                            : row?.statusId.name === "Hired by Else"
                             ? "bg-[#FF7476]"
                             : "bg-[#7AE071]"
                         }`}
                       >
-                        <option value="In Discussion" className="text-black">
-                          In Discussion
-                        </option>
-                        <option value="Hired by Else" className="text-black">
-                          Hired by Else
-                        </option>
-                        <option value="Hired" className="text-black">
-                          Hired
-                        </option>
+                        {getLeadStatusData?.status?.length > 0 ? (
+                          getLeadStatusData.status.map((status: any) => (
+                            <option key={status._id} value={status.name} className="text-black">
+                              {status.name}
+                            </option>
+                          ))
+                        ) : (
+                          <option value="" disabled>
+                            No Status Available
+                          </option>
+                        )}
                       </select>
                     </td>
                     <td>
@@ -174,7 +144,7 @@ const RecentLeads: React.FC = () => {
                 <tr>
                   <td
                     className="w-full flex justify-center p-3 items-center"
-                    colSpan={6}
+                    colSpan={8}
                   >
                     <p className="text-center">No data found</p>
                   </td>
@@ -215,49 +185,47 @@ const RecentLeads: React.FC = () => {
       {isModalOpen && selectedProject && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-[20px] md:p-[40px] rounded-[20px] w-[94%] max-w-[850px] max-h-[94vh] overflow-y-auto">
-            <div className="modal-header flex  justify-between gap-3 flex-col md:flex-row">
-                <h2>{selectedProject.clienttName}</h2>
-                <div className="">
+            <div className="modal-header flex justify-between gap-3 flex-col md:flex-row">
+                <h2>{selectedProject?.clientname}</h2>
+                <div>
                   <p>Bidder</p>
-                  <h3> {selectedProject.bidderName}</h3>
+                  <h3> {selectedProject?.userId.fullName}</h3>
                 </div>
             </div>
             <div className="grid-box gap-3 mt-6">
                <div className="detail-card">
                  <p>Phone Number</p>
-                 <h3>{selectedProject.phoneNumber}</h3>
+                 <h3>{selectedProject?.clientphone}</h3>
                </div>
                <div className="detail-card">
                  <p>Email Address</p>
-                 <h3>{selectedProject.emailAddress}</h3>
+                 <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
                </div>
             </div>
             <div className="grid-box gap-3">
                <div className="detail-card">
                  <p>Date of lead</p>
-                 <h3>{selectedProject.dateOflead}</h3>
+                 <h3>{selectedProject?.date}</h3>
                </div>
                <div className="detail-card">
                  <p>Platform</p>
-                 <h3>{selectedProject.platform}</h3>
+                 <h3>{selectedProject?.platform?.name || "N/A"}</h3>
                </div>
             </div>
             <div className="grid-box gap-3">
                <div className="detail-card">
                  <p>Technology</p>
-                 <h3>{selectedProject.tech}</h3>
+                 <h3>{selectedProject?.technology.name}</h3>
                </div>
                <div className="detail-card">
                  <p>Status</p>
-                 <h3>{selectedProject.status}</h3>
+                 <h3>{selectedProject.statusId.name}</h3>
                </div>
             </div>
-            <div className="flex w-full gap-3">
-               <div className="detail-card">
+            <div className="detail-card">
                  <p>Notes</p>
-                 <p className="!text-[14px]">{selectedProject.notes}</p>
+                 <p  className="!text-[14px]" >{selectedProject?.notes}</p>
                </div>
-            </div>
             <div className="flex w-full justify-center gap-3">
               <button
                 onClick={closeModal}

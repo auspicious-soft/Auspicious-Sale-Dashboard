@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import "../globals.css";
 import Header from "./components/Header";  
 import AdminMobileHeader from "./components/AdminMobileHeader";
 import SideNav from "./components/SideNav";
@@ -12,13 +13,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth()
-  const notUserOrAdmin = ['user']
-  // ['therapist', 'client']
+  const notUserOrAdmin = ['user'] 
 
-  // if (!session) {
-  //   redirect("/")
-  // }
-  // else if (!notUserOrAdmin.includes((session as any)?.user?.role)) {
+  if (!session) {
+    redirect("/")
+  }
+  else if (!notUserOrAdmin.includes((session as any)?.user?.role)) {
     return (
       <html lang="en">
         <body>
@@ -39,14 +39,14 @@ export default async function RootLayout({
         </body>
       </html>
     );
-  // } else {
-  //   return (
-  //     <div className="p-3 bg-black h-screen text-white">
-  //       You are not authorized to view this page click
-  //       <Link href="/" className="p-3 text-black bg-white">
-  //         Login
-  //       </Link>
-  //     </div>
-  //   );
-  // }
+  } else {
+    return (
+      <div className="p-3 bg-black h-screen text-white">
+        You are not authorized to view this page click
+        <Link href="/" className="p-3 text-black bg-white">
+          Login
+        </Link>
+      </div>
+    );
+  }
 }

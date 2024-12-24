@@ -54,7 +54,7 @@ export default function Page() {
       try {
         const response = await sendOtpService({ otp: completeOtp })
         if (response.status === 200) {
-          toast.success('Email sent successfully to you with otp')
+          toast.success('OTP verified successfully') 
           router.push(`/resetpassword?otp=${completeOtp}`)
         }
         else {

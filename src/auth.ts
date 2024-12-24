@@ -11,6 +11,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials: any) => {
         if (credentials.username) {
+          console.log('credentials:', credentials);
           return {
             username: credentials.username,
             fullName: credentials.fullName,
@@ -33,6 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.picture = (user as any).profilePic;
         token.role = (user as any).role;
       }
+      console.log('token:', token);
       return token;
     },
     session({ session, token }) {
@@ -43,6 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.image = token.picture;
         (session as any).user.role = token.role;
       }
+      console.log('session:', session);
       return session;
     },
   },

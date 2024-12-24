@@ -36,8 +36,6 @@ const RalewayBold = localFont({
   variable: '--font-Raleway-Bold', 
 })   
 
-
-
 export const metadata: Metadata = {
   title: "Auspicious Soft",
   description: " ",
