@@ -1,42 +1,112 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
+  BidSaveIcon,
   EarningsIcon,
   EditBid,
   ProjectHireIcon,
   ResponsesIcon,
+  SubmitButton, 
   TotalBids,
 } from "@/utils/svgicons";
-import { dashboradPage } from "@/services/admin/admin-service";
+import { createBidStatus, dashboradPage, updateBidStatus } from "@/services/admin/admin-service";
 import useSWR from "swr";
+import { toast } from "sonner";
  
 const OverViewSection: React.FC = () => {
-  const [amount, setAmount] = useState(10); // Default value for Amount
-  const [isEditingBids, setIsEditingBids] = useState(false); // Toggle edit mode for Bids
-  const [isEditingAmount, setIsEditingAmount] = useState(false); // Toggle edit mode for Amount
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Allow null
-  const { data, error, isLoading, mutate } = useSWR( 
-    "/admin/dashboard", 
-    dashboradPage
-  );
+  const [ isPending ,startTransition] = useTransition();
+  const [editedAmount, setEditedAmount] = useState<number | null>(0);
+  const [isEditingBids, setIsEditingBids] = useState(false);  
+  const [isEditingAmount, setIsEditingAmount] = useState(false);  
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());  
+
+  const { data, error, isLoading, mutate } = useSWR( "/admin/dashboard", dashboradPage);
 
   const dashboardData = data?.data?.data;
+  console.log('dashboardData:', dashboardData);
 
-  const handleSaveBids = () => {
-    setIsEditingBids(false); // Exit edit mode for Bids
+  
+  useEffect(() => {
+    if (!isEditingAmount) {
+      setEditedAmount(null);
+    }
+  }, [isEditingAmount]);
+
+
+  const handleSaveAmount = async () => {
+    const finalAmount = editedAmount ?? dashboardData?.bidsThisMonth?.amount ?? 0;
+    const id = dashboardData?.bidsThisMonth?._id;
+    
+    const actionData = {
+      amount: finalAmount,
+      date: selectedDate?.format('YYYY-MM-DD')
+    };
+
+    try {
+      const existingAmount = dashboardData?.bidsThisMonth?.amount;
+      let response: any;
+
+      if (existingAmount && id) {
+        // PATCH request
+        response = await updateBidStatus(`/admin/bid/${id}`, actionData);
+        
+        // Check for successful update (200)
+        if (response.status === 200) {
+          startTransition(() => {
+            const updatedData = {
+              ...dashboardData,
+              bidsThisMonth: {
+                ...dashboardData?.bidsThisMonth,
+                amount: finalAmount
+              }
+            };
+            mutate(updatedData, false);
+          });
+          
+          toast.success("Bid status updated successfully");
+        } else {
+          throw new Error("Update failed");
+        }
+      } else {
+        // POST request
+        response = await createBidStatus('/admin/bid', actionData);
+        
+        // Check for successful creation (201)
+        if (response.status === 201) {
+          startTransition(() => {
+            const updatedData = {
+              ...dashboardData,
+              bidsThisMonth: {
+                _id: response.data?._id,
+                amount: finalAmount,
+                date: selectedDate?.format('YYYY-MM-DD')
+              }
+            };
+            mutate(updatedData, false);
+          });
+          
+          toast.success("Bid status created successfully");
+        } else {
+          throw new Error("Creation failed");
+        }
+      }
+
+      setIsEditingAmount(false);
+      await mutate(); // Refetch to ensure server sync
+      
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(isEditingAmount ? "Error updating bid status" : "Error creating bid status");
+      await mutate(); // Refetch to revert to server state
+    }
   };
 
-  const handleSaveAmount = () => {
-    setIsEditingAmount(false); // Exit edit mode for Amount
-  };
-
-  // Define min and max dates to restrict the year range
-  const maxDate = dayjs(); // Current date
-  const minDate = dayjs().subtract(20, "year"); // 20 years in the past
+  const maxDate = dayjs(); 
+  const minDate = dayjs().subtract(20, "year"); 
 
   return (
     <div className="p-3 md:p-7 bg-white rounded-2xl flex items-center flex-col justify-between">
@@ -84,36 +154,48 @@ const OverViewSection: React.FC = () => {
 
       <div className="flex items-center justify-between w-full flex-wrap gap-8">
         {/* Total Bids */}
-        <div
-          className="cursor-pointer"
-          onClick={() => setIsEditingAmount(true)}
-        >
-          <div className="flex items-center gap-[10px] md:gap-[20px] relative">
-            {/* Edit Icon */}
-            <span className="cursor-pointer absolute right-[-15px] top-[-15px]">
-              <EditBid />
-            </span>
-            <div className="relative top-[2px]">
-            <TotalBids />
-            </div>
-            {isEditingAmount ? (
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                onBlur={handleSaveAmount} // Save on blur
-                className="border border-gray-300 rounded p-1 w-[120px] min-h-[50px] text-[20px] font-RalewaySemiBold text-[#10375C]"
-              />
-            ) : (
-              <span className="font-RalewaySemiBold text-[26px] md:text-[40px] text-[#10375C]">
-                {amount}
-              </span>
-            )}
-          </div>
-          <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
-          Total Bids
-          </p>
-        </div>
+
+  <div className="cursor-pointer">
+      <div className="flex items-center gap-[10px] md:gap-[20px] relative">
+      <span
+      className="cursor-pointer absolute right-[-15px] top-[-15px]"
+      onClick={isEditingAmount ? handleSaveAmount : () => setIsEditingAmount(true)}
+    >
+      {isEditingAmount ? (
+        <button 
+        onClick={handleSaveAmount} 
+        className=""
+        disabled={isPending}
+      >
+        {isPending ? 'Saving...' : <BidSaveIcon/>}
+      </button>
+      ) : (
+        <EditBid />
+      )}
+    </span>
+    <div className="relative top-[2px]">
+      <TotalBids />
+    </div>
+    {isEditingAmount ? (
+      <input
+        type="number"
+        value={editedAmount ?? dashboardData?.bidsThisMonth?.amount ?? 0}
+        onChange={(e) => setEditedAmount(Number(e.target.value))}
+        onBlur={handleSaveAmount}  
+        disabled={isPending}
+        className="border border-gray-300 rounded p-1 w-[80px] min-h-[50px] text-[20px] font-RalewaySemiBold text-[#10375C]"
+      />
+    ) : (
+      <span className="font-RalewaySemiBold text-[26px] md:text-[40px] text-[#10375C]">
+        {dashboardData?.bidsThisMonth?.amount ?? 0}
+      </span>
+    )}
+  </div>
+  <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
+    Total Bids
+  </p>
+</div>
+
 
         {/* Number of Responses */}
         <div>
@@ -122,7 +204,7 @@ const OverViewSection: React.FC = () => {
               <ResponsesIcon />
             </div>
             <span className="text-[26px] md:text-[40px] font-RalewaySemiBold text-[#10375C]">
-              {dashboardData?.totalresponses}{" "}
+            {dashboardData?.totalresponses}
             </span>
           </div>
           <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">

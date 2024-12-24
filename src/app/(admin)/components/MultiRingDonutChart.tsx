@@ -15,7 +15,7 @@ const Home: React.FC = () => {
 
     const dashboardData= data?.data?.data
     const bidsThisMonth = Array.isArray(dashboardData?.bidsThisMonth) ? dashboardData.bidsThisMonth : [];
-    const amount = bidsThisMonth.length > 0 ? bidsThisMonth[0].amount : "0"; 
+    const amount = dashboardData?.bidsThisMonth?.amount ?? 0; 
     const handleSave = () => {
       setIsEditing(false); // Exit edit mode
     };

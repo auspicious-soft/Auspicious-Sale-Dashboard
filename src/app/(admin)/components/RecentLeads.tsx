@@ -90,7 +90,7 @@ const RecentLeads: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {tabledata.map((row: any) => (
+                {tabledata?.map((row: any) => (
                   <tr key={row?._id}>
                     <td>{row?.clientname}</td>
                     <td>{row?.userId.fullName}</td>
