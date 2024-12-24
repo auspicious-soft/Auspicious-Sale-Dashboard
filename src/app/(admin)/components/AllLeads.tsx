@@ -159,7 +159,7 @@ const RecentLeads: React.FC = () => {
             nextLinkClassName={
               "grid place-items-center h-10 w-10 inline-block border border-{#F1F1F1} bg-white rounded-full"
             }
-            disabledClassName={"opacity-50 cursor-not-allowed"}
+            disabledClassName={"opacity-50 cursor-not-allowed"} 
           />
         </div>
          )}
