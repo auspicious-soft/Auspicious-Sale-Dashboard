@@ -23,3 +23,11 @@ export const getAllLeads = async (route: string) => {
     const axiosInstance = await getAxiosInstance(true)
     return axiosInstance.get(route)
 }
+  export const createGetLeadServices = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance(true)
+    return axiosInstance.get(route)
+}
+export const createNewLead = async (route: string, payload: any) => {
+    const axiosInstance = await getAxiosInstance(true);
+    return axiosInstance.post(route, payload);
+  };
