@@ -11,6 +11,12 @@ export const dashboradPage = async (route: string) => {
     const axiosInstance = await getAxiosInstance(true)
     return axiosInstance.get(route)
 }
+
+export const dashboardOverviewsFilter = async (route: string, payload: any) => {
+    const axiosInstance = await getAxiosInstance(true);
+    return axiosInstance.patch(route, payload);
+}
+
 export const getLeadStatus = async (route: string) => {  
     const axiosInstance = await getAxiosInstance(true)
     return axiosInstance.get(route)

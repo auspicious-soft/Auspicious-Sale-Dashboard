@@ -54,7 +54,7 @@ const RecentLeads: React.FC = () => {
         mutate(); // Re-fetch the data to reflect changes
       } else {
         toast.error("Failed to update status");
-      }
+      } 
     } catch (error) {
       toast.error("Error updating status");
     }
@@ -167,23 +167,24 @@ const RecentLeads: React.FC = () => {
       {isModalOpen && selectedProject && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-[20px] md:p-[40px] rounded-[20px] w-[94%] max-w-[850px] max-h-[94vh] overflow-y-auto">
-            <div className="modal-header flex justify-between gap-3 flex-col md:flex-row">
-                <h2>{selectedProject?.clientname}</h2>
-                <div>
-                  <p>Bidder</p>
-                  <h3> {selectedProject?.userId.fullName}</h3>
-                </div>
+          <div className="modal-header flex justify-between gap-3 flex-col md:flex-row">
+              <h2>{selectedProject?.clientname}</h2>
+              <div>
+                <p>Bidder</p>
+                <h3>{selectedProject?.userId.fullName}</h3>
+              </div>
             </div>
             <div className="grid-box gap-3 mt-6">
-               <div className="detail-card">
-                 <p>Phone Number</p>
-                 <h3>{selectedProject?.clientphone}</h3>
-               </div>
-               <div className="detail-card">
-                 <p>Email Address</p>
-                 <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
-               </div>
+              <div className="detail-card">
+                <p>Phone Number</p>
+                <h3>{selectedProject?.clientphone}</h3>
+              </div>
+              <div className="detail-card">
+                <p>Email Address</p>
+                <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
+              </div>
             </div>
+            
             <div className="grid-box gap-3">
                <div className="detail-card">
                  <p>Date of lead</p>
@@ -191,7 +192,7 @@ const RecentLeads: React.FC = () => {
                </div>
                <div className="detail-card">
                  <p>Platform</p>
-                 <h3>{selectedProject?.platform?.name || "N/A"}</h3>
+                 <h3>{selectedProject?.platform.name}</h3>
                </div>
             </div>
             <div className="grid-box gap-3">
@@ -201,13 +202,36 @@ const RecentLeads: React.FC = () => {
                </div>
                <div className="detail-card">
                  <p>Status</p>
-                 <h3>{selectedProject.statusId.name}</h3>
+                 <h3>{selectedProject?.statusId.name}</h3>
                </div>
             </div>
-            <div className="detail-card">
-                 <p>Notes</p>
-                 <p  className="!text-[14px]" >{selectedProject?.notes}</p>
+            <div className="grid-box gap-3">
+               <div className="detail-card">
+                 <p>Contract  Type</p>
+                 <h3>{selectedProject?.contracttype}</h3>
                </div>
+               <div className="detail-card">
+                  
+                  {selectedProject?.contracttype === "Hourly" ? (
+                    <>
+                    <p>No of hours and rate</p>
+                    <h3>${selectedProject?.costperhour}/hour for {selectedProject?.noofhours} hours</h3>
+                    </>
+                  ) : (
+                    <>
+                    <p>Fixed Price</p>
+                    <h3>${selectedProject?.fixedprice}</h3>
+                    </>
+                  )}
+                </div>
+            </div>
+            <div className="flex w-full gap-3">
+               <div className="detail-card">
+                 <p>Notes</p>
+                 <p className="!text-[14px]">{selectedProject?.notes}</p>
+               </div>
+            </div>
+            
             <div className="flex w-full justify-center gap-3">
               <button
                 onClick={closeModal}

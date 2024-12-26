@@ -14,8 +14,8 @@ const Home: React.FC = () => {
     const {data, error , isLoading, mutate} = useSWR('/admin/dashboard', dashboradPage)
 
     const dashboardData= data?.data?.data
-    const bidsThisMonth = Array.isArray(dashboardData?.bidsThisMonth) ? dashboardData.bidsThisMonth : [];
-    const amount = dashboardData?.bidsThisMonth?.amount ?? 0; 
+    const bidsThisMonth = Array.isArray(dashboardData?.bidsThisMonths) ? dashboardData.bidsThisMonths : [];
+    const amount = dashboardData?.bidsThisMonths?.amount ?? 0; 
     const handleSave = () => {
       setIsEditing(false); // Exit edit mode
     };

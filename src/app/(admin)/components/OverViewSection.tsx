@@ -27,7 +27,6 @@ const OverViewSection: React.FC = () => {
   const { data, error, isLoading, mutate } = useSWR( "/admin/dashboard", dashboradPage);
 
   const dashboardData = data?.data?.data;
-  console.log('dashboardData:', dashboardData);
 
   
   useEffect(() => {
@@ -179,7 +178,7 @@ const OverViewSection: React.FC = () => {
     {isEditingAmount ? (
       <input
         type="number"
-        value={editedAmount ?? dashboardData?.bidsThisMonth?.amount ?? 0}
+        value={editedAmount ?? dashboardData?.bidsThisMonths?.amount ?? 0}
         onChange={(e) => setEditedAmount(Number(e.target.value))}
         onBlur={handleSaveAmount}  
         disabled={isPending}
@@ -187,7 +186,7 @@ const OverViewSection: React.FC = () => {
       />
     ) : (
       <span className="font-RalewaySemiBold text-[26px] md:text-[40px] text-[#10375C]">
-        {dashboardData?.bidsThisMonth?.amount ?? 0}
+        {dashboardData?.bidsThisMonths?.amount ?? 0}
       </span>
     )}
   </div>

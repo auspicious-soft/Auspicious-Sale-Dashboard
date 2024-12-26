@@ -158,6 +158,55 @@ const RecentLeads: React.FC = () => {
                 <h3 className="!lowercase">{selectedProject?.clientemail}</h3>
               </div>
             </div>
+            
+            <div className="grid-box gap-3">
+               <div className="detail-card">
+                 <p>Date of lead</p>
+                 <h3>{selectedProject?.date}</h3>
+               </div>
+               <div className="detail-card">
+                 <p>Platform</p>
+                 <h3>{selectedProject?.platform.name}</h3>
+               </div>
+            </div>
+            <div className="grid-box gap-3">
+               <div className="detail-card">
+                 <p>Technology</p>
+                 <h3>{selectedProject?.technology.name}</h3>
+               </div>
+               <div className="detail-card">
+                 <p>Status</p>
+                 <h3>{selectedProject?.statusId.name}</h3>
+               </div>
+            </div>
+            <div className="grid-box gap-3">
+               <div className="detail-card">
+                 <p>Contract  Type</p>
+                 <h3>{selectedProject?.contracttype}</h3>
+               </div>
+               <div className="detail-card">
+                  
+                  {selectedProject?.contracttype === "Hourly" ? (
+                    <>
+                    <p>No of hours and rate</p>
+                    <h3>${selectedProject?.costperhour}/hour for {selectedProject?.noofhours} hours</h3>
+                    </>
+                  ) : (
+                    <>
+                    <p>Fixed Price</p>
+                    <h3>${selectedProject?.fixedprice}</h3>
+                    </>
+                  )}
+                </div>
+            </div>
+            <div className="flex w-full gap-3">
+               <div className="detail-card">
+                 <p>Notes</p>
+                 <p className="!text-[14px]">{selectedProject?.notes}</p>
+               </div>
+            </div>
+            
+
             <div className="flex w-full justify-center gap-3">
               <button
                 onClick={closeModal}

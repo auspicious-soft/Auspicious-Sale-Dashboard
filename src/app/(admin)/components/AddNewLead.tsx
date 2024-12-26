@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { ChangeEvent, FormEvent, useState, useTransition } from "react";
 import Notification from "../components/Notification";
 import { SubmitButton } from "@/utils/svgicons";
@@ -31,28 +31,32 @@ const AddNewLead: React.FC = () => {
   );
 
   const createLeadusers = data?.data?.data?.users;
-  const bidders = createLeadusers?.map((user: any) => ({
-    label: `${user?.fullName}`,
-    value: `${user?._id}`,
-  })) || [];
+  const bidders =
+    createLeadusers?.map((user: any) => ({
+      label: `${user?.fullName}`,
+      value: `${user?._id}`,
+    })) || [];
 
   const createLeadPlatform = data?.data?.data?.platform;
-  const platform = createLeadPlatform?.map((platform: any) => ({
-    label: `${platform?.name}`,
-    value: `${platform?._id}`,
-  })) || [];
+  const platform =
+    createLeadPlatform?.map((platform: any) => ({
+      label: `${platform?.name}`,
+      value: `${platform?._id}`,
+    })) || [];
 
   const createLeadTechnology = data?.data?.data?.technology;
-  const technology = createLeadTechnology?.map((technology: any) => ({
-    label: `${technology?.name}`,
-    value: `${technology?._id}`,
-  })) || [];
+  const technology =
+    createLeadTechnology?.map((technology: any) => ({
+      label: `${technology?.name}`,
+      value: `${technology?._id}`,
+    })) || [];
 
   const createLeadStatus = data?.data?.data?.status;
-  const status = createLeadStatus?.map((status: any) => ({
-    label: `${status?.name}`,
-    value: `${status?._id}`,
-  })) || [];
+  const status =
+    createLeadStatus?.map((status: any) => ({
+      label: `${status?.name}`,
+      value: `${status?._id}`,
+    })) || [];
 
   const [formData, setFormData] = useState<any>({
     clientname: "",
@@ -135,16 +139,11 @@ const AddNewLead: React.FC = () => {
       statusId: formData.statusId,
       notes: formData.notes,
       contracttype: formData.contracttype,
+      fixedprice: formData.fixedprice,
+      noofhours: formData.noofhours,
+      costperhour: formData.costperhour,
+
     };
-
-    // Add appropriate cost fields based on contract type
-    // if (formData.contracttype === "Fixed") {
-    //   payload.fixedprice = formData.fixedprice;
-    // } else if (formData.contracttype === "Hourly") {
-    //   payload.noofhours = formData.noofhours;
-    //   payload.costperhour = formData.costperhour;
-    //}
-
     try {
       const response = await createNewLead(`/admin/lead`, payload);
       if (response.status === 201) {
@@ -269,26 +268,42 @@ const AddNewLead: React.FC = () => {
                 placeholder="Contract Type"
               />
             </div>
-            <div className="md:w-[calc(33.333%-15px)]">
-              <label className="block">No of Hours</label>
-              <input
-                type="number"
-                name="noofhours"
-                value={formData.noofhours}
-                placeholder="No of Hours"
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="md:w-[calc(33.333%-15px)]">
-              <label className="block">Cost per hour</label>
-              <input
-                type="number"
-                name="costperhour"
-                value={formData.costperhour}
-                placeholder="Cost per hour"
-                onChange={handleInputChange}
-              />
-            </div>
+            {selectedContractType?.value === "Hourly" && (
+              <>
+                <div className="md:w-[calc(33.333%-15px)]">
+                  <label className="block">No of Hours</label>
+                  <input
+                    type="number"
+                    name="noofhours"
+                    value={formData.noofhours}
+                    placeholder="No of Hours"
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="md:w-[calc(33.333%-15px)]">
+                  <label className="block">Cost per hour</label>
+                  <input
+                    type="number"
+                    name="costperhour"
+                    value={formData.costperhour}
+                    placeholder="Cost per hour"
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </>
+            )}
+            {selectedContractType?.value === "Fixed" && (
+              <div className="md:w-[calc(33.333%-15px)]">
+                <label className="block">Fixed Price</label>
+                <input
+                  type="number"
+                  name="fixedprice"
+                  value={formData.fixedprice}
+                  placeholder="Cost per hour"
+                  onChange={handleInputChange}
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid md:flex flex-wrap gap-[20px] relative bg-white rounded-[20px] mb-[20px] md:rounded-[20px] w-full py-[20px] px-[15px] md:px-[28px]">
