@@ -1,47 +1,85 @@
 "use client";
-import React, { FormEvent, ChangeEvent, useState } from "react";
+import React, { FormEvent, ChangeEvent, useState, useEffect } from "react";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isPending: any;
+  data: any;
+}
+interface TargetUser {
+  userId: string;
+  fullName: string;
+  targetAmount: number;
+  technologyId: string;
+  targetDate: string | null;
 }
 
-interface Team {
-  teamName: string;
-  members: string[];
+interface GroupedUsers {
+  WebDevelopment?: TargetUser[];
+  MERNDevelopment?: TargetUser[];
+  MobileDevelopment?: TargetUser[];
+  SeoDevelopment?: TargetUser[];
 }
 
 interface FormData {
   [teamName: string]: {
     totalTarget: string;
-    members: string[];
-  };
+    members: {
+      userId: string;
+      fullName: string;
+      target: string;
+    }[];
+  }; 
 }
 
-const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
-  const initialTeams: Team[] = [
-    {
-      teamName: "Target for Web",
-      members: ["Pardeep Singh", "Pardeep Singh", "Pardeep Singh"],
-    },
-    { teamName: "Target for MERN", members: ["Ravi Kumar", "Ajay Mehra"] },
-    { teamName: "Target for Mobile", members: ["Suresh Kumar", "John Doe"] },
-    {
-      teamName: "Target for SEO",
-      members: ["Anil Gupta", "Kunal Singh", "Sara Lee"],
-    },
-  ];
+const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, data }) => {
+ 
+  const [formData, setFormData] = useState<FormData>({});
 
-  const [formData, setFormData] = useState<FormData>(() => {
-    const initialFormState: FormData = {};
-    initialTeams.forEach((team) => {
-      initialFormState[team.teamName] = {
-        totalTarget: "",
-        members: team.members.map(() => ""),
+  useEffect(() => {
+    if (data) {
+      const initialFormState: FormData = {
+        "Target for Web": {
+          totalTarget: calculateTotalTarget(data?.WebDevelopment || []),
+          members: (data?.WebDevelopment || []).map((user: any) => ({
+            userId: user.userId,
+            fullName: user.fullName,
+            target: user.targetAmount.toString()
+          }))
+        },
+        "Target for MERN": {
+          totalTarget: calculateTotalTarget(data?.MERNDevelopment || []),
+          members: (data?.MERNDevelopment || []).map((user: any) => ({
+            userId: user.userId,
+            fullName: user.fullName,
+            target: user.targetAmount.toString()
+          }))
+        },
+        "Target for Mobile": {
+          totalTarget: calculateTotalTarget(data?.MobileDevelopment || []),
+          members: (data?.MobileDevelopment || []).map((user: any) => ({
+            userId: user.userId,
+            fullName: user.fullName,
+            target: user.targetAmount.toString()
+          }))
+        },
+        "Target for SEO": {
+          totalTarget: calculateTotalTarget(data?.SeoDevelopment || []),
+          members: (data?.SeoDevelopment || []).map((user: any) => ({
+            userId: user.userId,
+            fullName: user.fullName,
+            target: user.targetAmount.toString()
+          }))
+        }
       };
-    });
-    return initialFormState;
-  });
+      setFormData(initialFormState);
+    }
+  }, [data]);
+
+  const calculateTotalTarget = (users: TargetUser[]): string => {
+    return users.reduce((sum, user) => sum + (user.targetAmount || 0), 0).toString();
+  };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -49,18 +87,23 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     index?: number
   ) => {
     const { name, value } = e.target;
+    const numericValue = value.replace(/[^0-9.]/g, "");
+
     setFormData((prev: FormData) => {
       if (name === "totalTarget") {
         return {
           ...prev,
           [teamName]: {
             ...prev[teamName],
-            totalTarget: value,
+            totalTarget: numericValue,
           },
         };
       } else if (index !== undefined) {
         const updatedMembers = [...prev[teamName].members];
-        updatedMembers[index] = value;
+        updatedMembers[index] = {
+          ...updatedMembers[index],
+          target: numericValue
+        };
         return {
           ...prev,
           [teamName]: {
@@ -73,11 +116,29 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
+    // Transform formData back to API format
+    const payload = Object.entries(formData).reduce((acc: any, [teamName, data]) => {
+      const technology = teamName.replace("Target for ", "");
+      const members = data.members.map(member => ({
+        userId: member.userId,
+        targetAmount: parseFloat(member.target) || 0,
+        targetDate: new Date().toISOString()
+      }));
+      acc[`${technology}Development`] = members;
+      return acc;
+    }, {});
+
+    console.log("Submitting data:", payload);
   };
 
+  const teamSections = [
+    { key: "Target for Web", data: data?.WebDevelopment },
+    { key: "Target for MERN", data: data?.MERNDevelopment },
+    { key: "Target for Mobile", data: data?.MobileDevelopment },
+    { key: "Target for SEO", data: data?.SeoDevelopment }
+  ];
   if (!isOpen) return null;
 
   return (
@@ -93,85 +154,49 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="fomm-wrapper">
-          {initialTeams.map((team, teamIndex) => (
-            <div key={teamIndex} className="mt-[15px] md:mt-[30px]">
-              <h6 className="w-full text-[#1C2329] text-[16px] mb-2 font-RalewayMedium">
-                {team.teamName}
-              </h6>
-              <div className="flex flex-wrap gap-[10px] ">
-                <div className="w-full md:w-[calc(25%-5px)]">
-                  <label className="block text-gray-700 mb-1">
-                    Total Target
-                  </label>
-                  <input
-                    type="text"
-                    name="totalTarget"
-                    placeholder="Enter total target"
-                    value={`$${formData[team.teamName]?.totalTarget || ""}`}
-                    onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^0-9.]/g,
-                        ""
-                      );
-                      setFormData((prev: FormData) => {
-                        const updatedTeam = { ...prev[team.teamName] };
-                        updatedTeam.totalTarget = numericValue;
-                        return { ...prev, [team.teamName]: updatedTeam };
-                      });
-                    }}
-                    onFocus={(e) => {
-                      e.target.value =
-                        formData[team.teamName]?.totalTarget || "";
-                    }}
-                    onBlur={(e) => {
-                      e.target.value = `$${
-                        formData[team.teamName]?.totalTarget || ""
-                      }`;
-                    }}
-                    className="border rounded px-2 py-1 w-full !border-[#5D5FEF] !text-[#5D5FEF]"
-                  />
-                </div>
-
-                {team.members.map((member, memberIndex) => (
-                  <div key={memberIndex} className="w-[calc(50%-10px)] md:w-[calc(25%-10px)]">
-                    <label className="block">{member}</label>
-                    <input
-                      type="text"
-                      placeholder="Target"
-                      value={`$${
-                        formData[team.teamName]?.members[memberIndex] || ""
-                      }`}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(
-                          /[^0-9.]/g,
-                          ""
-                        );
-                        setFormData((prev: FormData) => {
-                          const updatedTeam = { ...prev[team.teamName] };
-                          const updatedMembers = [...updatedTeam.members];
-                          updatedMembers[memberIndex] = numericValue;
-                          updatedTeam.members = updatedMembers;
-                          return { ...prev, [team.teamName]: updatedTeam };
-                        });
-                      }}
-                      onFocus={(e) => {
-                        e.target.value =
-                          formData[team.teamName]?.members[memberIndex] || "";
-                      }}
-                      onBlur={(e) => {
-                        e.target.value = `${
-                          formData[team.teamName]?.members[memberIndex] || ""
-                        }`;
-                      }}
-                      className="border rounded px-2 py-1 w-full" 
-                    />
+          {teamSections.map((section, teamIndex) => {
+            if (!section.data?.length) return null;
+            
+            return (
+              <div key={teamIndex} className="mt-[15px] md:mt-[30px]">
+                <h6 className="w-full text-[#1C2329] text-[16px] mb-2 font-RalewayMedium">
+                  {section.key}
+                </h6>
+                <div className="flex gap-5">
+                  <div className="w-full md:w-[calc(25%-5px)]">
+                    <label className="block text-gray-700 mb-1">
+                      Total Target
+                    </label>
+                    <p className="border rounded-[10px] px-3  py-[14px] w-full !border-[#5D5FEF] !text-[#5D5FEF]">
+                    {`$${formData[section.key]?.totalTarget || ""}`}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
 
-          {/* Modal Footer */}
+                 <div className="flex w-full flex-wrap gap-3 ">
+                 {section.data.map((user: any, memberIndex: any) => (
+                    <div key={user.userId} className="w-[calc(50%-10px)] md:w-[calc(25%-10px)]">
+                      <label className="block">{user.fullName}</label>
+                      <input
+                        type="text"
+                        placeholder="Target"
+                        value={`$${formData[section.key]?.members[memberIndex]?.target || ""}`}
+                        onChange={(e) => handleInputChange(e, section.key, memberIndex)}
+                        onFocus={(e) => {
+                          e.target.value = formData[section.key]?.members[memberIndex]?.target || "";
+                        }}
+                        onBlur={(e) => {
+                          e.target.value = `$${formData[section.key]?.members[memberIndex]?.target || ""}`;
+                        }}
+                        className="border rounded px-2 py-1 w-full"
+                      />
+                    </div>
+                  ))}
+                 </div>
+                </div>
+              </div>
+            );
+          })}
+
           <div className="flex w-full justify-center gap-3">
             <button
               onClick={onClose}
@@ -182,9 +207,10 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               type="submit"
+              disabled={isPending}
               className="mt-6 bg-[#5D5FEF] border-solid border-[1px] border-[#5D5FEF] text-white px-8 py-4 w-full max-w-[184px] rounded-full text-[14px]"
             >
-              Save
+              {isPending ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

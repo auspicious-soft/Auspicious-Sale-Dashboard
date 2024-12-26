@@ -5,8 +5,14 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { EarningsIcon } from "@/utils/svgicons";
+interface TargetDataProps {
+  earning: any;
+  target: any;
+}
+export default function TeamEarningsCard(props: any) {
+  const { earning, target } = props;
+  
 
-export default function TeamEarningsCard() {
   const [totalBids, setTotalBids] = useState(240); // Default value
   const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Allow null
@@ -97,7 +103,7 @@ export default function TeamEarningsCard() {
             <div className="relative top-[2px]">
             <EarningsIcon />
              </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">$3,100/<span className="text-[20px]">3100</span></span>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.WebDevelopment} /<span className="text-[20px]">{target?.WebDevelopment}</span></span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By Web Team</p>
         </div>
@@ -107,7 +113,7 @@ export default function TeamEarningsCard() {
             <div className="relative top-[2px]">
             <EarningsIcon />
              </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">$3,100/<span className="text-[20px]">3100</span></span>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.MobileDevelopment}/<span className="text-[20px]">{target?.MobileDevelopment}</span></span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By Mobile Team</p>
         </div>
@@ -117,9 +123,9 @@ export default function TeamEarningsCard() {
           <div className="relative top-[2px]">
           <EarningsIcon />
             </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">$3,100/<span className="text-[20px]">3100</span></span>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.SeoDevelopment}/<span className="text-[20px]">{target?.SeoDevelopment}</span></span>
           </div>
-          <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By Mobile Team</p>
+          <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By SEO Team</p>
         </div>
 
         <div>
@@ -127,7 +133,7 @@ export default function TeamEarningsCard() {
             <div className="relative top-[2px]">
            <EarningsIcon />
            </div>
-           <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">$3,100/<span className="text-[20px]">3100</span></span>
+           <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.MERNDevelopment}/<span className="text-[20px]">{target?.MERNDevelopment}</span></span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By MERN Team</p>
         </div>

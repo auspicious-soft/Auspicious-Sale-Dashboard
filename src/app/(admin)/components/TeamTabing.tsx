@@ -5,13 +5,18 @@ import MobileTableCard from './MobileTableCard'
 import SEOTableCard from './SEOTableCard'
 import MERNTableCard from './MERNTableCard'
 
+interface TabbingsProps {
+  tabbingData: any;
+}
 // Example Components for Tab Content
 const Web = () => <></>;
 const Mobile = () => <></>;
 const SEO = () => <></>;
 const MERN = () => <></>;
 
-const TabbedInterface = () => {
+const TabbedInterface = (props: any) => {
+  const {tabbingData}= props;
+  
   const [activeTab, setActiveTab] = useState(0);
 
   // Array of Tabs with Components as Content
