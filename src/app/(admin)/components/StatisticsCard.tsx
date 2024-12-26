@@ -5,23 +5,19 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-export default function StatisticsCard() {
+export default function StatisticsCard(props: any) {
+  const {stats} = props;
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
   // Define min and max dates
   const maxDate = dayjs();
   const minDate = dayjs().subtract(20, "year");
-
-  // Define the Monthly Target percentage explicitly as a number
-  const monthlyTarget: number = 120; // Update this value dynamically as needed
-
-  // Determine message based on Monthly Target percentage
   let targetMessage = "";
-  if (monthlyTarget < 100) {
+  if (stats < 100) {
     targetMessage = "Monthly Target not Achieved";
-  } else if (monthlyTarget === 100) {
+  } else if (stats === 100) {
     targetMessage = "Monthly Target Achieved";
-  } else if (monthlyTarget > 100) {
+  } else if (stats > 100) {
     targetMessage = "Monthly Target over Achieved";
   }
 
@@ -69,7 +65,7 @@ export default function StatisticsCard() {
 
       {/* Targets */}
       <div className="flex items-center gap-[10px] md:gap-[20px] w-full bg-[#5D5FEF] p-[10px] rounded-[10px] text-[#fff] font-RalewayMedium text-[14px] md:text-[18px]">
-          <div className="bg-[#3335D1] rounded-[5px] p-[10px] text-[20px] md:text-[24px]">{monthlyTarget}%</div>  {targetMessage}
+          <div className="bg-[#3335D1] rounded-[5px] p-[10px] text-[20px] md:text-[24px]">{Math.round(stats)}%</div>  {targetMessage}
       </div>
     </div>
   );

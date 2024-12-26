@@ -27,6 +27,7 @@ const OverViewSection: React.FC = () => {
   const { data, error, isLoading, mutate } = useSWR( "/admin/dashboard", dashboradPage);
 
   const dashboardData = data?.data?.data;
+  console.log('dashboardData:', dashboardData);
 
   
   useEffect(() => {
