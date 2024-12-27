@@ -33,7 +33,7 @@ const TabbedInterface = () => {
   }
   // Preprocess data for Web Development
   const tabbingDataWeb: WebDevelopmentUser[] =
-    targetRevenue?.WebDevelopment.map((user: any) => ({
+    targetRevenue?.WebDevelopment?.members.map((user: any) => ({
       userId: user.userId,
       fullName: user.fullName,
       dailyEarnings: user.dailyEarnings,
@@ -47,7 +47,7 @@ const TabbedInterface = () => {
     };
   }
   const tabbingDataMobile: MobileDevelopmentUser[] =
-    targetRevenue?.MobileDevelopment.map((user: any) => ({
+    targetRevenue?.MobileDevelopment?.members.map((user: any) => ({
       userId: user.userId,
       fullName: user.fullName,
       dailyEarnings: user.dailyEarnings,
@@ -60,7 +60,7 @@ const TabbedInterface = () => {
       };
     }
     const tabbingDataMern: MernDevelopmentUser[] =
-      targetRevenue?.MERNDevelopment.map((user: any) => ({
+      targetRevenue?.MERNDevelopment?.members.map((user: any) => ({
         userId: user.userId,
         fullName: user.fullName,
         dailyEarnings: user.dailyEarnings,
@@ -74,7 +74,7 @@ const TabbedInterface = () => {
         };
       }
       const tabbingDataSeo: SeoDevelopmentUser[] =
-        targetRevenue?.SeoDevelopment.map((user: any) => ({
+        targetRevenue?.SeoDevelopment?.members.map((user: any) => ({
           userId: user.userId,
           fullName: user.fullName,
           dailyEarnings: user.dailyEarnings,

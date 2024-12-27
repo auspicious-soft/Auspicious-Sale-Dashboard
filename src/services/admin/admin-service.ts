@@ -75,3 +75,7 @@ export const targetRevenueTable = async (route: string) => {
     const axiosInstance = await getAxiosInstance()
     return axiosInstance.get(route)
 }  
+export const targetValuCard = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance()
+    return axiosInstance.get(route)
+}  

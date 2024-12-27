@@ -13,10 +13,7 @@ const Page = () => {
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-[60%_40%]">
-        <TargetsCard
-          totalTarget={targetStats?.totalTargetAmount}
-          totalEarning={targetStats?.totalEarnings}
-        />
+        <TargetsCard />
         <StatisticsCard />
       </div>
       <TeamEarningsCard />
