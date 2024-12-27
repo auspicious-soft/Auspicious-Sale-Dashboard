@@ -14,8 +14,13 @@ interface Project {
   webBidderTwo: string;
   webBidderThree: string;
 }
+interface WebDevelopmentProps {
+  tabbingDataWeb: any; // You can replace `any` with the specific type if known
+}
 
-const WebTableCard: React.FC = () => {
+const WebTableCard: React.FC<WebDevelopmentProps> = (props) => {
+  const { tabbingDataWeb } = props;
+  
     const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Allow null
      // Define min and max dates to restrict the year range
      const maxDate = dayjs(); // Current date

@@ -21,7 +21,7 @@ const TabbedInterface = (props: any) => {
 
   // Array of Tabs with Components as Content
   const tabs = [
-    { name: 'Web', component: <WebTableCard /> },
+    { name: 'Web', component: <WebTableCard tabbingDataWeb={tabbingData?.WebDevelopment} /> },
     { name: 'Mobile', component: <MobileTableCard /> },
     { name: 'SEO', component: <SEOTableCard /> },
     { name: 'MERN', component: <MERNTableCard /> },

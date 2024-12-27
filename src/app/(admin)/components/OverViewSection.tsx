@@ -10,32 +10,49 @@ import {
   EditBid,
   ProjectHireIcon,
   ResponsesIcon,
-  SubmitButton, 
+  SubmitButton,
   TotalBids,
 } from "@/utils/svgicons";
-import { createBidStatus, dashboradPage, updateBidStatus } from "@/services/admin/admin-service";
+import { createBidStatus, dashboardOverview, updateBidStatus } from "@/services/admin/admin-service";
 import useSWR from "swr";
 import { toast } from "sonner";
- 
-const OverViewSection: React.FC = () => {
-  const [ isPending ,startTransition] = useTransition();
-  const [editedAmount, setEditedAmount] = useState<number | null>(0);
-  const [isEditingBids, setIsEditingBids] = useState(false);  
-  const [isEditingAmount, setIsEditingAmount] = useState(false);  
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());  
 
-  const { data, error, isLoading, mutate } = useSWR( "/admin/dashboard", dashboradPage);
+const OverViewSection: React.FC = () => {
+  const [isPending, startTransition] = useTransition();
+  const [editedAmount, setEditedAmount] = useState<number | null>(0);
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+
+  // Create the API URL with month and year parameters
+  const getApiUrl = (date: Dayjs | null) => {
+    if (!date) return null;
+    const month = date.month() + 1; // dayjs months are 0-indexed
+    const year = date.year();
+    return `/admin/dashboardOverviewstat?month=${month}&year=${year}`;
+  };
+
+  // Use the constructed URL in the SWR hook
+  const { data, error, isLoading, mutate } = useSWR(
+    getApiUrl(selectedDate),
+    dashboardOverview,
+    {
+      revalidateOnFocus: false,
+    }
+  );
 
   const dashboardData = data?.data?.data;
-  console.log('dashboardData:', dashboardData);
 
-  
   useEffect(() => {
     if (!isEditingAmount) {
       setEditedAmount(null);
     }
   }, [isEditingAmount]);
 
+  // Handle date changes
+  const handleDateChange = (newDate: Dayjs | null) => {
+    setSelectedDate(newDate);
+    // The SWR hook will automatically refetch with the new URL
+  };
 
   const handleSaveAmount = async () => {
     const finalAmount = editedAmount ?? dashboardData?.bidsThisMonth?.amount ?? 0;
@@ -51,10 +68,8 @@ const OverViewSection: React.FC = () => {
       let response: any;
 
       if (existingAmount && id) {
-        // PATCH request
         response = await updateBidStatus(`/admin/bid/${id}`, actionData);
         
-        // Check for successful update (200)
         if (response.status === 200) {
           startTransition(() => {
             const updatedData = {
@@ -72,10 +87,8 @@ const OverViewSection: React.FC = () => {
           throw new Error("Update failed");
         }
       } else {
-        // POST request
         response = await createBidStatus('/admin/bid', actionData);
         
-        // Check for successful creation (201)
         if (response.status === 201) {
           startTransition(() => {
             const updatedData = {
@@ -96,34 +109,42 @@ const OverViewSection: React.FC = () => {
       }
 
       setIsEditingAmount(false);
-      await mutate(); // Refetch to ensure server sync
+      await mutate();
       
     } catch (error) {
       console.error("Error:", error);
       toast.error(isEditingAmount ? "Error updating bid status" : "Error creating bid status");
-      await mutate(); // Refetch to revert to server state
+      await mutate();
     }
   };
 
-  const maxDate = dayjs(); 
-  const minDate = dayjs().subtract(20, "year"); 
+  const maxDate = dayjs();
+  const minDate = dayjs().subtract(20, "year");
+
+  // Loading state
+  if (isLoading) {
+    return <div className="p-7 bg-white rounded-2xl">Loading...</div>;
+  }
+
+  // Error state
+  if (error) {
+    return <div className="p-7 bg-white rounded-2xl">Error loading dashboard data</div>;
+  }
 
   return (
     <div className="p-3 md:p-7 bg-white rounded-2xl flex items-center flex-col justify-between">
       <div className="w-full flex items-center justify-between gap-4 mb-10 flex-wrap">
         <h3 className="text-[20px] font-RalewaySemiBold">Overview</h3>
-        {/* Date Picker Filters */}
         <div className="flex items-center gap-4 max-w-[270px]">
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {/* Month Picker */}
             <DatePicker
               label="Month"
               openTo="month"
               views={["month"]}
               value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate} // Restrict to past year
-              maxDate={maxDate} // Restrict to current month
+              onChange={handleDateChange}
+              minDate={minDate}
+              maxDate={maxDate}
               sx={{
                 "& .MuiOutlinedInput-input": {
                   fontSize: "12px",
@@ -131,16 +152,15 @@ const OverViewSection: React.FC = () => {
                 },
               }}
             />
-            {/* Year Picker */}
             <DatePicker
               className="border-[#000] input-custom"
               label="Year"
               openTo="year"
               views={["year"]}
               value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate} // Restrict to past year
-              maxDate={maxDate} // Restrict to current year
+              onChange={handleDateChange}
+              minDate={minDate}
+              maxDate={maxDate}
               sx={{
                 "& .MuiOutlinedInput-input": {
                   fontSize: "12px",
@@ -154,48 +174,46 @@ const OverViewSection: React.FC = () => {
 
       <div className="flex items-center justify-between w-full flex-wrap gap-8">
         {/* Total Bids */}
-
-  <div className="cursor-pointer">
-      <div className="flex items-center gap-[10px] md:gap-[20px] relative">
-      <span
-      className="cursor-pointer absolute right-[-15px] top-[-15px]"
-      onClick={isEditingAmount ? handleSaveAmount : () => setIsEditingAmount(true)}
-    >
-      {isEditingAmount ? (
-        <button 
-        onClick={handleSaveAmount} 
-        className=""
-        disabled={isPending}
-      >
-        {isPending ? 'Saving...' : <BidSaveIcon/>}
-      </button>
-      ) : (
-        <EditBid />
-      )}
-    </span>
-    <div className="relative top-[2px]">
-      <TotalBids />
-    </div>
-    {isEditingAmount ? (
-      <input
-        type="number"
-        value={editedAmount ?? dashboardData?.bidsThisMonths?.amount ?? 0}
-        onChange={(e) => setEditedAmount(Number(e.target.value))}
-        onBlur={handleSaveAmount}  
-        disabled={isPending}
-        className="border border-gray-300 rounded p-1 w-[80px] min-h-[50px] text-[20px] font-RalewaySemiBold text-[#10375C]"
-      />
-    ) : (
-      <span className="font-RalewaySemiBold text-[26px] md:text-[40px] text-[#10375C]">
-        {dashboardData?.bidsThisMonths?.amount ?? 0}
-      </span>
-    )}
-  </div>
-  <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
-    Total Bids
-  </p>
-</div>
-
+        <div className="cursor-pointer">
+          <div className="flex items-center gap-[10px] md:gap-[20px] relative">
+            <span
+              className="cursor-pointer absolute right-[-15px] top-[-15px]"
+              onClick={isEditingAmount ? handleSaveAmount : () => setIsEditingAmount(true)}
+            >
+              {isEditingAmount ? (
+                <button 
+                  onClick={handleSaveAmount} 
+                  className=""
+                  disabled={isPending}
+                >
+                  {isPending ? 'Saving...' : <BidSaveIcon/>}
+                </button>
+              ) : (
+                <EditBid />
+              )}
+            </span>
+            <div className="relative top-[2px]">
+              <TotalBids />
+            </div>
+            {isEditingAmount ? (
+              <input
+                type="number"
+                value={editedAmount ?? dashboardData?.bidsThisMonth?.amount ?? 0}
+                onChange={(e) => setEditedAmount(Number(e.target.value))}
+                onBlur={handleSaveAmount}  
+                disabled={isPending}
+                className="border border-gray-300 rounded p-1 w-[80px] min-h-[50px] text-[20px] font-RalewaySemiBold text-[#10375C]"
+              />
+            ) : (
+              <span className="font-RalewaySemiBold text-[26px] md:text-[40px] text-[#10375C]">
+                {dashboardData?.bidsThisMonth?.amount ?? 0}
+              </span>
+            )}
+          </div>
+          <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
+            Total Bids
+          </p>
+        </div>
 
         {/* Number of Responses */}
         <div>
@@ -204,7 +222,7 @@ const OverViewSection: React.FC = () => {
               <ResponsesIcon />
             </div>
             <span className="text-[26px] md:text-[40px] font-RalewaySemiBold text-[#10375C]">
-            {dashboardData?.totalresponses}
+              {dashboardData?.totalresponses ?? 0}
             </span>
           </div>
           <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
@@ -219,7 +237,7 @@ const OverViewSection: React.FC = () => {
               <ProjectHireIcon />
             </div>
             <span className="text-[26px] md:text-[40px] font-RalewaySemiBold text-[#10375C]">
-              {dashboardData?.projecthired}
+              {dashboardData?.projecthired ?? 0}
             </span>
           </div>
           <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">
@@ -234,7 +252,7 @@ const OverViewSection: React.FC = () => {
               <EarningsIcon />
             </div>
             <span className="text-[26px] md:text-[40px] font-RalewaySemiBold text-[#10375C]">
-              {dashboardData?.totalEarnings}
+              {dashboardData?.totalEarnings ?? 0}
             </span>
           </div>
           <p className="text-[#1C2329] text-[12px] font-RalewayMedium mt-[4px]">

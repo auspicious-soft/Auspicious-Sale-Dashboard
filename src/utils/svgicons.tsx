@@ -319,7 +319,7 @@ export const BidSaveIcon = () => (
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="20" height="20" rx="10" fill="#5D5FEF"/>
 <g clip-path="url(#clip0_312_93)">
-<path d="M14 7L8.5 12.5L6 10" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14 7L8.5 12.5L6 10" stroke="white" stroke-width="1.2" strokeWidth="round" stroke-linejoin="round"/>
 </g>
 <defs>
 <clipPath id="clip0_312_93">

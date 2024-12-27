@@ -6,16 +6,20 @@ export const forgotPasswordService = async (payload: any) => await axiosInstance
 export const sendOtpService = async (payload: any) => await axiosInstance.post(`/verify-otp`, payload)
 export const resetUserPassword = async (payload: any) => await axiosInstance.patch(`/new-password-otp-verified`, payload)
 
-
+//Dashborad Page
 export const dashboradPage = async (route: string) => {  
     const axiosInstance = await getAxiosInstance(true)
     return axiosInstance.get(route)
 }
-
-export const dashboardOverviewsFilter = async (route: string, payload: any) => {
-    const axiosInstance = await getAxiosInstance(true);
-    return axiosInstance.patch(route, payload);
+export const dashboardOverview = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance(true)
+    return axiosInstance.get(route)
 }
+export const dashboardchart = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance(true)
+    return axiosInstance.get(route)
+}
+
 
 export const getLeadStatus = async (route: string) => {  
     const axiosInstance = await getAxiosInstance(true)
@@ -57,3 +61,8 @@ export const updateTargetModal = async (route: string, payload: any) => {
     const axiosInstance = await getAxiosInstance();
     return axiosInstance.patch(route, payload);
 }
+
+export const targetPercentageStatistics = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance()
+    return axiosInstance.get(route)
+}  
