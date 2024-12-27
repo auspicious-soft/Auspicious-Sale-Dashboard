@@ -17,8 +17,7 @@ interface ApiResponse {
 }
 
 export default function StatisticsCard() {
-  const { selectedDate, setSelectedDate, getApiUrl, maxDate, minDate } =
-    useDateFilter();
+  const { selectedDate, setSelectedDate, getApiUrl, maxDate, minDate } = useDateFilter();
 
   // Create a fetcher function that handles the Axios response
   const fetcher = async (url: string) => {

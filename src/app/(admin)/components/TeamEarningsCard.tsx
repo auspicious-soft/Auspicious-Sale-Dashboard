@@ -1,109 +1,99 @@
 "use client";
-import React, { useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import React from "react";
 import { EarningsIcon } from "@/utils/svgicons";
-interface TargetDataProps {
-  earning: any;
-  target: any;
+import { targetTeamEarning } from "@/services/admin/admin-service";
+import useSWR from "swr";
+import { useDateFilter } from "../hooks/useDateFilter";
+import { DateFilter } from "./DateFilter";
+import { AxiosResponse } from "axios";
+
+interface TeamEarningsData {
+  technologyEarnings: {
+    WebDevelopment: number;
+    MobileDevelopment: number;
+    SeoDevelopment: number;
+    MERNDevelopment: number;
+  };
+  targetamount: {
+    WebDevelopment: number;
+    MobileDevelopment: number;
+    SeoDevelopment: number;
+    MERNDevelopment: number;
+  };
 }
-export default function TeamEarningsCard(props: any) {
-  const { earning, target } = props;
-  
 
-  const [totalBids, setTotalBids] = useState(240); // Default value
-  const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Allow null
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data: TeamEarningsData;
+}
 
-  const handleSave = () => {
-    setIsEditing(false); // Exit edit mode
+export default function TeamEarningsCard() {
+  const {
+    selectedDate,
+    setSelectedDate,
+    getApiUrl,
+    maxDate,
+    minDate
+  } = useDateFilter();
+
+  const fetcher = async (url: string) => {
+    const response: AxiosResponse<ApiResponse> = await targetTeamEarning(url);
+    return response.data.data;
   };
 
-  // Define min and max dates to restrict the year range
-  const maxDate = dayjs(); // Current date
-  const minDate = dayjs().subtract(20, "year"); // One year in the past
+  const { data, error, isLoading } = useSWR<TeamEarningsData>(
+    getApiUrl('/admin/target-team-earning-stat', selectedDate),
+    fetcher,
+    {
+      revalidateOnFocus: false
+    }
+  );
+
+  if (isLoading) {
+    return (
+      <div className="p-3 md:p-7 bg-[#5D5FEF] rounded-2xl">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-3 md:p-7 bg-[#5D5FEF] rounded-2xl">
+        <div className="text-white">Error loading data</div>
+      </div>
+    );
+  }
+
+  const { technologyEarnings, targetamount } = data || {
+    technologyEarnings: { WebDevelopment: 0, MobileDevelopment: 0, SeoDevelopment: 0, MERNDevelopment: 0 },
+    targetamount: { WebDevelopment: 0, MobileDevelopment: 0, SeoDevelopment: 0, MERNDevelopment: 0 }
+  };
 
   return (
     <div className="p-3 md:p-7 bg-[#5D5FEF] rounded-2xl flex items-center flex-col justify-between mt-[20px]">
-      <div className="w-full flex items-center justify-between gap-4 mb-6 flex-wrap ">  
+      <div className="w-full flex items-center justify-between gap-4 mb-6 flex-wrap">  
         <h3 className="text-lg font-RalewaySemiBold text-[#fff]">Team Earnings</h3>
-         {/* Date Picker Filters */}
-        <div className="flex items-center gap-4 max-w-[270px]"> 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-             {/* Month Picker */}  
-             <DatePicker
-              label="Month"
-              openTo="month"
-              views={["month"]}
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate} // Restrict to past year
-              maxDate={maxDate} // Restrict to current month
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  color: '#fff', 
-                  borderColor: '#fff', 
-                },
-                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#fff', 
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: '#fff', 
-                  fontSize: '12px',
-                  padding: '12px 10px',
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#fff', 
-                },
-                '& .MuiSvgIcon-root': {
-                  color: '#fff', 
-                },
-              }}
-            />
-            {/* Year Picker */}
-            <DatePicker
-              className="border-[#fff] input-custom"
-              label="Year"
-              openTo="year"
-              views={["year"]}
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate}
-              maxDate={maxDate} //
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  color: '#fff', 
-                  borderColor: '#fff', 
-                },
-                '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#fff', 
-                },
-                '& .MuiOutlinedInput-input': {
-                  color: '#fff', 
-                  fontSize: '12px',
-                  padding: '12px 10px',
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#fff', 
-                },
-                '& .MuiSvgIcon-root': {
-                  color: '#fff', 
-                },
-              }}
-            />
-          </LocalizationProvider>
+        <div className="[&_*]:!text-white [&_*]:!border-white">
+          <DateFilter
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            minDate={minDate}
+            maxDate={maxDate} 
+          />
         </div>
       </div>
 
       <div className="flex items-center justify-between w-full flex-wrap gap-8">
         <div>
           <div className="flex items-center gap-[10px] md:gap-[20px]">
-            <div className="relative top-[2px]">
-            <EarningsIcon />
-             </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.WebDevelopment} /<span className="text-[20px]">{target?.WebDevelopment}</span></span>
+            <div className="relative top-[2px]"> 
+              <EarningsIcon />
+            </div>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">
+              ${technologyEarnings?.WebDevelopment}/<span className="text-[20px]">{targetamount?.WebDevelopment}</span>
+            </span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By Web Team</p>
         </div>
@@ -111,35 +101,39 @@ export default function TeamEarningsCard(props: any) {
         <div>
           <div className="flex items-center gap-[10px] md:gap-[20px]">
             <div className="relative top-[2px]">
-            <EarningsIcon />
-             </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.MobileDevelopment}/<span className="text-[20px]">{target?.MobileDevelopment}</span></span>
+              <EarningsIcon />
+            </div>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">
+              ${technologyEarnings?.MobileDevelopment}/<span className="text-[20px]">{targetamount?.MobileDevelopment}</span>
+            </span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By Mobile Team</p>
         </div>
 
         <div>
           <div className="flex items-center gap-[10px] md:gap-[20px]">
-          <div className="relative top-[2px]">
-          <EarningsIcon />
+            <div className="relative top-[2px]">
+              <EarningsIcon />
             </div>
-            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.SeoDevelopment}/<span className="text-[20px]">{target?.SeoDevelopment}</span></span>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">
+              ${technologyEarnings?.SeoDevelopment}/<span className="text-[20px]">{targetamount?.SeoDevelopment}</span>
+            </span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By SEO Team</p>
         </div>
 
         <div>
-            <div className="flex items-center gap-[10px] md:gap-[20px]">
+          <div className="flex items-center gap-[10px] md:gap-[20px]">
             <div className="relative top-[2px]">
-           <EarningsIcon />
-           </div>
-           <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">${target?.MERNDevelopment}/<span className="text-[20px]">{target?.MERNDevelopment}</span></span>
+              <EarningsIcon />
+            </div>
+            <span className="text-[26px] md:text-[30px] font-RalewaySemiBold text-[#ffffff]">
+              ${technologyEarnings?.MERNDevelopment}/<span className="text-[20px]">{targetamount?.MERNDevelopment}</span>
+            </span>
           </div>
           <p className="text-[#ffffff] text-[12px] mt-[4px]">Revenue By MERN Team</p>
         </div>
       </div>
- 
-     
     </div>
   );
 }

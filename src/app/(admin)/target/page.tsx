@@ -19,11 +19,8 @@ const Page = () => {
         />
         <StatisticsCard />
       </div>
-      <TeamEarningsCard
-        target={targetStats?.targetamount}
-        earning={targetStats?.technologyEarnings}
-      />
-      <TeamTabing tabbingData={targetStats?.groupedUsers} />
+      <TeamEarningsCard />
+      <TeamTabing />
     </div>
   );
 };

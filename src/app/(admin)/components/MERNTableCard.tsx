@@ -1,187 +1,133 @@
-"use client";
-import { NextLabel, PreviousLabel } from "@/utils/svgicons";
-import React, { useState } from "react";
-import ReactPaginate from "react-paginate";
-import dayjs, { Dayjs } from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import React from "react";
 
-// Define the type for your project
-interface Project {
-  _id: string;
-  webBidderOne: string;
-  webBidderTwo: string;
-  webBidderThree: string;
+// Define interfaces for our data structure
+interface DailyEarnings {
+  [date: string]: number;
 }
 
-const WebTableCard: React.FC = () => {
-    const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs()); // Allow null
-     // Define min and max dates to restrict the year range
-     const maxDate = dayjs(); // Current date
-     const minDate = dayjs().subtract(20, "year"); // One year in the past
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      _id: "1",
-      webBidderOne: "$1000",
-      webBidderTwo: "$1500",
-      webBidderThree: "$500",
-    },
-    {
-      _id: "2",
-      webBidderOne: "$2000",
-      webBidderTwo: "$205",
-      webBidderThree: "$1000",
-    },
-  ]);
+interface User {
+  userId: string;
+  fullName: string;
+  dailyEarnings: DailyEarnings;
+}
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const rowsPerPage = 12;
-  const total = projects.length;
+interface MernTableCardProps {
+  tabbingDataMern: User[];
+  isLoading?: boolean;
+  error?: boolean;
+}
 
-  const handlePageClick = (selectedItem: { selected: number }) => {
-    setCurrentPage(selectedItem.selected);
+const WebTableCard: React.FC<MernTableCardProps> = ({ tabbingDataMern = [], isLoading = false, error = false }) => {
+  // Get all unique dates from all users' dailyEarnings
+  const getAllDates = (): string[] => {
+    const dates = new Set<string>();
+    tabbingDataMern.forEach((user: User) => {
+      if (user.dailyEarnings) {
+        Object.keys(user.dailyEarnings).forEach(date => dates.add(date)); 
+      }
+    });
+    return Array.from(dates).sort();
   };
 
-  const displayedProjects = projects.slice(
-    currentPage * rowsPerPage,
-    (currentPage + 1) * rowsPerPage
-  );
+  const dates = getAllDates();
 
-  const parseAmount = (amount: string) => parseFloat(amount.replace('$', '').trim()) || 0;
-
-  // Calculate row total for each project
-  const calculateRowTotal = (project: Project) => {
-    return parseAmount(project.webBidderOne) + parseAmount(project.webBidderTwo) + parseAmount(project.webBidderThree);
+  // Get earning for a specific date
+  const getEarningForDate = (dailyEarnings: DailyEarnings, date: string): string | number => {
+    return dailyEarnings[date] !== undefined ? dailyEarnings[date] : "-";
   };
 
-  // Calculate the grand total for all projects
-  const calculateGrandTotal = (projects: Project[]) => {
-    return projects.reduce((acc, project) => acc + calculateRowTotal(project), 0);
-  };
-
-  // Calculate the grid total for each column
-  const calculateGridTotal = (projects: Project[], columnIndex: number) => {
-    return projects.reduce((acc, project) => {
-      const amount = [project.webBidderOne, project.webBidderTwo, project.webBidderThree][columnIndex];
-      return acc + parseAmount(amount);
+  // Calculate total for each row (date)
+  const calculateDateTotal = (date: string): number => {
+    return tabbingDataMern.reduce((total: number, user: User) => {
+      const earning = getEarningForDate(user.dailyEarnings, date);
+      return total + (typeof earning === "number" ? earning : 0);
     }, 0);
   };
-   
+
+  // Calculate total for each user
+  const calculateUserTotal = (dailyEarnings: DailyEarnings): number => {
+    return Object.values(dailyEarnings || {}).reduce((sum: number, value: number) => sum + value, 0);
+  };
+
+  // Calculate grand total
+  const calculateGrandTotal = (): number => {
+    return tabbingDataMern.reduce((total: number, user: User) => {
+      return total + calculateUserTotal(user.dailyEarnings);
+    }, 0);
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full flexp-8">
+        <div className="">Loading...</div>
+      </div>
+    );
+  } 
+ 
+  if (!tabbingDataMern.length || !dates.length) {
+    return (
+      <div className="table-common overflow-custom w-full sub-total-table">
+          <p className="">No data found</p>
+      </div>
+    ); 
+  } 
+  
+  if (error) {
+    return (
+      <div className="w-full flex p-8"> 
+        <div className="">Error loading Table data</div>
+      </div>
+    );
+  } 
 
   return (
-    <>
-      <div className="p-3 md:p-7 bg-white rounded-2xl flex items-center flex-col justify-between mt-[16px]">
-        <div className="w-full flex items-center justify-between gap-4 mb-6 flex-wrap">
-          <h3 className="text-lg font-RalewaySemiBold">Revenue Generated</h3>
-            {/* Date Picker Filters */}
-        <div className="flex items-center gap-4 max-w-[270px]"> 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-             {/* Month Picker */}  
-             <DatePicker
-              label="Month"
-              openTo="month"
-              views={["month"]}
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate} // Restrict to past year
-              maxDate={maxDate} // Restrict to current month
-              sx={{
-                '& .MuiOutlinedInput-input': {
-                  fontSize: '12px',
-                  padding: '12px 10px',
-                },
-              }}
-            />
-            {/* Year Picker */}
-            <DatePicker
-              className="border-[#000] input-custom"
-              label="Year"
-              openTo="year"
-              views={["year"]}
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              minDate={minDate} // Restrict to past year
-              maxDate={maxDate} // Restrict to current year
-              sx={{
-                '& .MuiOutlinedInput-input': {
-                  fontSize: '12px',
-                  padding: '12px 10px',
-                },
-              }}
-            />
-          </LocalizationProvider>
-        </div>
-        </div>
-
-        <div className="table-common overflow-custom w-full sub-total-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Pardeep Singh</th>
-                <th>Annu</th>
-                <th>Simran</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedProjects.length > 0 ? (
-                displayedProjects.map((row) => (
-                  <tr key={row._id}>
-                    <td>{row.webBidderOne}</td>
-                    <td>{row.webBidderTwo}</td>
-                    <td>{row.webBidderThree}</td>
-                    <td>{`$${calculateRowTotal(row).toFixed(2)}`}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="w-full flex justify-center p-3 items-center" colSpan={8}>
-                    <p className="text-center">No data found</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            <tfoot >
-              <tr className="bg-[#5D5FEF] rounded-[10px]">
-                <td>{`$${calculateGridTotal(projects, 0).toFixed(2)}`}</td>
-                <td>{`$${calculateGridTotal(projects, 1).toFixed(2)}`}</td>
-                <td>{`$${calculateGridTotal(projects, 2).toFixed(2)}`}</td>
-                <td>{`$${calculateGrandTotal(projects).toFixed(2)}`}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div className="text-right mt-4 w-full">
-          <ReactPaginate
-            previousLabel={<PreviousLabel />}
-            nextLabel={<NextLabel />}
-            breakLabel={"..."}
-            pageCount={Math.ceil(total / rowsPerPage)}
-            onPageChange={handlePageClick}
-            containerClassName={"inline-flex mt-[34px] gap-1"}
-            pageClassName={
-              "text-[#3C3F88] border border-{#F1F1F1} bg-white rounded-full"
-            }
-            pageLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block"
-            }
-            activeClassName={"!bg-[#5D5FEF] active rounded-full text-white"}
-            previousClassName={"leading-[normal]"}
-            previousLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block border border-{#F1F1F1} bg-white rounded-full"
-            }
-            nextLinkClassName={
-              "grid place-items-center h-10 w-10 inline-block border border-{#F1F1F1} bg-white rounded-full"
-            }
-            disabledClassName={"opacity-50 cursor-not-allowed"}
-          />
-        </div>
-      </div>
-
-      {/* Modal code here */}
-    </>
+    <div className="table-common overflow-custom w-full sub-total-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            {tabbingDataMern.map((user: User) => (
+              <th key={user.userId}>{user.fullName}</th>
+            ))}
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dates.map((date: string) => (
+            <tr key={`row-${date}`}>
+              <td>{formatDate(date)}</td>
+              {tabbingDataMern.map((user: User) => (
+                <td key={`${user.userId}-${date}`}>
+                  {getEarningForDate(user.dailyEarnings, date) === "-" 
+                    ? "-" 
+                    : `$${getEarningForDate(user.dailyEarnings, date).toLocaleString()}`}
+                </td>
+              ))}
+              <td>${calculateDateTotal(date).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="bg-[#5D5FEF] rounded-[10px] text-white">
+            <td>Total</td>
+            {tabbingDataMern.map((user: User) => (
+              <td key={`total-${user.userId}`}>
+                ${calculateUserTotal(user.dailyEarnings).toLocaleString()}
+              </td>
+            ))}
+            <td>${calculateGrandTotal().toLocaleString()}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   );
 };
 

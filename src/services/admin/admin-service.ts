@@ -66,3 +66,12 @@ export const targetPercentageStatistics = async (route: string) => {
     const axiosInstance = await getAxiosInstance()
     return axiosInstance.get(route)
 }  
+
+export const targetTeamEarning = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance()
+    return axiosInstance.get(route)
+}  
+export const targetRevenueTable = async (route: string) => {  
+    const axiosInstance = await getAxiosInstance()
+    return axiosInstance.get(route)
+}  
