@@ -1,5 +1,6 @@
 "use client";
 import { updateTargetModal } from "@/services/admin/admin-service";
+import { DollarSymbolIcon } from "@/utils/svgicons";
 import { useRouter } from "next/navigation";
 import React, { FormEvent, ChangeEvent, useState, useEffect, useTransition } from "react";
 import { toast } from "sonner";
@@ -214,19 +215,19 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
                  {section.data.map((user: any, memberIndex: any) => (
                     <div key={user.userId} className="w-[calc(50%-10px)] md:w-[calc(25%-10px)]">
                       <label className="block">{user.fullName}</label>
+                      <div className="relative">
                       <input
                         type="text"
                         placeholder="Target"
-                        value={`$${formData[section.key]?.members[memberIndex]?.target || ""}`}
+                        value={`${formData[section.key]?.members[memberIndex]?.target || ""}`}
                         onChange={(e) => handleInputChange(e, section.key, memberIndex)}
-                        onFocus={(e) => {
-                          e.target.value = formData[section.key]?.members[memberIndex]?.target || "";
-                        }}
-                        onBlur={(e) => {
-                          e.target.value = `$${formData[section.key]?.members[memberIndex]?.target || ""}`;
-                        }}
-                        className="border rounded px-2 py-1 w-full"
+                        
+                        className="border rounded !pl-7 pr-2 py-1 w-full"
                       />
+                      <div className="dollar-symbol !bottom-[17px] ">
+                   <DollarSymbolIcon />
+                   </div>
+                  </div>
                     </div>
                   ))}
                  </div>
