@@ -53,9 +53,9 @@ export const getTargetStats = async (route: string) => {
     const axiosInstance = await getAxiosInstance()
     return axiosInstance.get(route)
 }   
-export const targetModalStats = async (route: string, payload: any) => {
+export const targetModalStats = async (route: string) => {
     const axiosInstance = await getAxiosInstance();
-    return axiosInstance.post(route, payload);
+    return axiosInstance.get(route);
 }
 export const updateTargetModal = async (route: string, payload: any) => {
     const axiosInstance = await getAxiosInstance();

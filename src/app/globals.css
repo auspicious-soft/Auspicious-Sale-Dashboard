@@ -64,6 +64,12 @@ input:-moz-placeholder { /* Firefox 18- */
   padding: 7px 20px 7px 7px;
   grid-gap: 10px;
 }
+button:disabled {
+  background: #DBDBDB;
+  border: none;
+  color: #232323;
+  cursor: not-allowed;
+}
 .section-title {
 color: #353E6C;
 font-size: 20px;

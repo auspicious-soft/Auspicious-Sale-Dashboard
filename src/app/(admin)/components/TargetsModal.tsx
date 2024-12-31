@@ -3,13 +3,17 @@ import { updateTargetModal } from "@/services/admin/admin-service";
 import { DollarSymbolIcon } from "@/utils/svgicons";
 import { useRouter } from "next/navigation";
 import React, { FormEvent, ChangeEvent, useState, useEffect, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "sonner"; 
+import dayjs from "dayjs";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: any;
   total: any;
+  mutate: any;
+  year: any;
+  month: any;
 }
 interface TargetUser {
   userId: string;
@@ -39,8 +43,7 @@ interface FormData {
   }; 
 }
 
-const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total }) => {
-  console.log('data:', data);
+const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total, mutate, year, month }) => {
  
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -60,6 +63,9 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
     }, 0);
   };
 
+  const monthName = dayjs().month(month - 1).format("MMMM");
+  const currentMonth = dayjs().month() + 1; 
+  const currentYear = dayjs().year();
 
   useEffect(() => {
     if (data) {
@@ -160,7 +166,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
       
         if (response.status === 200) { 
           toast.success("Targets updated successfully");
-          //router.refresh();
+          // mutate();
           window.location.reload();  
           onClose();
         } else {
@@ -185,7 +191,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
       <div className="bg-white py-[20px] px-[15px] md:p-[40px] rounded-lg w-[94%] max-w-[850px] shadow-lg max-h-[94vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-[#10375C]">
-            Target December 2024
+            Target {monthName} {year}
           </h3>
           <div className="bg-[#5D5FEF] text-[#fff] font-RalewayBold text-[18px] md:text-[22px] py-3 px-4 md:px-10 rounded-[10px]">
             ${total}
@@ -217,6 +223,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
                       <label className="block">{user.fullName}</label>
                       <div className="relative">
                       <input
+                      readOnly={ month !== currentMonth || year !== currentYear}
                         type="text"
                         placeholder="Target"
                         value={`${formData[section.key]?.members[memberIndex]?.target || ""}`}
@@ -246,7 +253,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total })
             </button>
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || month !== currentMonth || year !== currentYear}
               className="mt-6 bg-[#5D5FEF] border-solid border-[1px] border-[#5D5FEF] text-white px-8 py-4 w-full max-w-[184px] rounded-full text-[14px]"
             >
               {isPending ? 'Saving...' : 'Save'}
