@@ -19,21 +19,25 @@ const StatisticsChart: React.FC<StatisticsChartProps> = ({ amount, responseRate,
     datasets: [
       {
         label: 'Response Rate',
-        data: [responseRate, 100 - responseRate], // Dynamically set response rate
-        backgroundColor: ['#7AE071', '#fff'],
+        data: [responseRate, 100 - responseRate],
+        backgroundColor: ['#7AE071', 'transparent'],
         borderWidth: 0,
         cutout: '85%',
         circumference: 360,
         rotation: 0,
+        hoverBackgroundColor: ['#7AE071', 'transparent'],
+        hoverBorderWidth: 0,
       },
       {
         label: 'Hiring Rate',
-        data: [hiringRate, 100 - hiringRate], // Dynamically set hiring rate
-        backgroundColor: ['#FD5602', '#fff'],
-        borderWidth: 2,
+        data: [hiringRate, 100 - hiringRate],
+        backgroundColor: ['#FD5602', 'transparent'],
+        borderWidth: 0,
         cutout: '78%',
         circumference: 360,
         rotation: 0,
+        hoverBackgroundColor: ['#FD5602', 'transparent'],
+        hoverBorderWidth: 0,
       },
     ],
   };
@@ -42,15 +46,15 @@ const StatisticsChart: React.FC<StatisticsChartProps> = ({ amount, responseRate,
     responsive: true,
     plugins: {
       tooltip: { enabled: false },
+      legend: { display: false },
     },
     layout: {
       padding: 10,
     },
-    pluginsOptions: {
-      legend: {
-        display: false,
-      },
+    hover: { 
+      mode: undefined 
     },
+    events: [] 
   };
 
   return (
