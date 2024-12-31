@@ -166,7 +166,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total, m
       
         if (response.status === 200) { 
           toast.success("Targets updated successfully");
-          // mutate();
+           mutate();
           window.location.reload();  
           onClose();
         } else {
