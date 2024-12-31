@@ -80,9 +80,9 @@ const RecentLeads: React.FC = () => {
 
         <div className="table-common overflow-custom w-full">
           {isLoading ? (
-            <p className="text-center">Loading...</p> // Show loading message
+            <p className="">Loading...</p> // Show loading message
           ) : tabledata.length === 0 ? (
-            <p className="text-center">No data found</p> // Show no data message
+            <p className="">No data found</p> // Show no data message
           ) : (
             <table>
               <thead>
