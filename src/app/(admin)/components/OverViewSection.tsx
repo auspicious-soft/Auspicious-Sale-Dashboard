@@ -80,12 +80,12 @@ const OverViewSection: React.FC = () => {
               }
             };
             mutate(updatedData, false);
-            window.location.reload();  
+            // window.location.reload();  
           });
           
           toast.success("Bid status updated successfully");
         } else {
-          throw new Error("Update failed");
+          throw new Error("Update failed"); 
         }
       } else {
         response = await createBidStatus('/admin/bid', actionData);
