@@ -1,11 +1,14 @@
 "use client";
-import React, { FormEvent, ChangeEvent, useState, useEffect } from "react";
+import { updateTargetModal } from "@/services/admin/admin-service";
+import { useRouter } from "next/navigation";
+import React, { FormEvent, ChangeEvent, useState, useEffect, useTransition } from "react";
+import { toast } from "sonner";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isPending: any;
   data: any;
+  total: any;
 }
 interface TargetUser {
   userId: string;
@@ -29,13 +32,33 @@ interface FormData {
       userId: string;
       fullName: string;
       target: string;
+      technologyId: string;
+      targetDate: string;
     }[];
   }; 
 }
 
-const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, data }) => {
+const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total }) => {
+  console.log('data:', data);
  
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({});
+  const [grandTotal, setGrandTotal] = useState<number>(0);
+
+  const calculateTeamTotal = (members: { target: string }[]): string => {
+    return members
+      .reduce((sum, member) => sum + (parseFloat(member.target) || 0), 0)
+      .toString();
+  };
+
+  // Calculate grand total across all teams
+  const calculateGrandTotal = (data: FormData): number => {
+    return Object.values(data).reduce((sum, team) => {
+      return sum + parseFloat(calculateTeamTotal(team.members));
+    }, 0);
+  };
+
 
   useEffect(() => {
     if (data) {
@@ -44,6 +67,8 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, dat
           totalTarget: calculateTotalTarget(data?.WebDevelopment || []),
           members: (data?.WebDevelopment || []).map((user: any) => ({
             userId: user.userId,
+            targetDate: user.targetDate,
+            technologyId: user.technologyId,
             fullName: user.fullName,
             target: user.targetAmount.toString()
           }))
@@ -52,6 +77,8 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, dat
           totalTarget: calculateTotalTarget(data?.MERNDevelopment || []),
           members: (data?.MERNDevelopment || []).map((user: any) => ({
             userId: user.userId,
+            targetDate: user.targetDate,
+            technologyId: user.technologyId,
             fullName: user.fullName,
             target: user.targetAmount.toString()
           }))
@@ -60,6 +87,8 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, dat
           totalTarget: calculateTotalTarget(data?.MobileDevelopment || []),
           members: (data?.MobileDevelopment || []).map((user: any) => ({
             userId: user.userId,
+            targetDate: user.targetDate,
+            technologyId: user.technologyId,
             fullName: user.fullName,
             target: user.targetAmount.toString()
           }))
@@ -68,71 +97,80 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, dat
           totalTarget: calculateTotalTarget(data?.SeoDevelopment || []),
           members: (data?.SeoDevelopment || []).map((user: any) => ({
             userId: user.userId,
+            targetDate: user.targetDate,
+            technologyId: user.technologyId,
             fullName: user.fullName,
             target: user.targetAmount.toString()
           }))
         }
       };
       setFormData(initialFormState);
+      setGrandTotal(calculateGrandTotal(initialFormState));
     }
   }, [data]);
 
-  const calculateTotalTarget = (users: TargetUser[]): string => {
+  const calculateTotalTarget = (users: TargetUser[]): any => {
     return users.reduce((sum, user) => sum + (user.targetAmount || 0), 0).toString();
   };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
     teamName: string,
-    index?: number
+    index: number
   ) => {
-    const { name, value } = e.target;
-    const numericValue = value.replace(/[^0-9.]/g, "");
-
+    const value = e.target.value.replace(/[^0-9.]/g, "");
+    
     setFormData((prev: FormData) => {
-      if (name === "totalTarget") {
-        return {
-          ...prev,
-          [teamName]: {
-            ...prev[teamName],
-            totalTarget: numericValue,
-          },
-        };
-      } else if (index !== undefined) {
-        const updatedMembers = [...prev[teamName].members];
-        updatedMembers[index] = {
-          ...updatedMembers[index],
-          target: numericValue
-        };
-        return {
-          ...prev,
-          [teamName]: {
-            ...prev[teamName],
-            members: updatedMembers,
-          },
-        };
-      }
-      return prev;
+      const updatedFormData = {
+        ...prev,
+        [teamName]: {
+          ...prev[teamName],
+          members: prev[teamName].members.map((member, i) => 
+            i === index ? { ...member, target: value } : member
+          )
+        }
+      };
+      updatedFormData[teamName].totalTarget = calculateTeamTotal(updatedFormData[teamName].members);
+
+      setGrandTotal(calculateGrandTotal(updatedFormData));
+      
+      return updatedFormData;
     });
   };
 
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Transform formData back to API format
-    const payload = Object.entries(formData).reduce((acc: any, [teamName, data]) => {
-      const technology = teamName.replace("Target for ", "");
-      const members = data.members.map(member => ({
-        userId: member.userId,
-        targetAmount: parseFloat(member.target) || 0,
-        targetDate: new Date().toISOString()
-      }));
-      acc[`${technology}Development`] = members;
-      return acc;
-    }, {});
-
-    console.log("Submitting data:", payload);
+    
+    try {
+        const targets = Object.values(formData).flatMap(teamData => 
+          teamData.members.map(member => ({
+            userId: member.userId,
+            technologyId: member.technologyId,
+            targetDate: member.targetDate || new Date().toISOString(),
+            targetAmount: parseFloat(member.target) || 0
+          }))
+        );
+        const payload = { targets };
+        console.log('payload:', payload);
+  
+        const response = await updateTargetModal("/admin/target", payload);
+        console.log('response:', response);
+      
+        if (response.status === 200) { 
+          toast.success("Targets updated successfully");
+          //router.refresh();
+          window.location.reload();  
+          onClose();
+        } else {
+          toast.error("Failed to update targets");
+        }
+      } catch (error) {
+        console.error("Error updating targets:", error);
+        toast.error("An error occurred while updating the targets");
+      }
   };
-
+  
   const teamSections = [
     { key: "Target for Web", data: data?.WebDevelopment },
     { key: "Target for MERN", data: data?.MERNDevelopment },
@@ -149,7 +187,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, isPending, dat
             Target December 2024
           </h3>
           <div className="bg-[#5D5FEF] text-[#fff] font-RalewayBold text-[18px] md:text-[22px] py-3 px-4 md:px-10 rounded-[10px]">
-            $12,400
+            ${total}
           </div>
         </div>
 

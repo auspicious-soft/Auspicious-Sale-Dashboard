@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import TargetsCard from "../components/TargetsCard";
 import StatisticsCard from "../components/StatisticsCard";
@@ -7,8 +6,6 @@ import TeamTabing from "../components/TeamTabing";
 import useSWR from "swr";
 import { getTargetStats } from "@/services/admin/admin-service";
 const Page = () => {
-  const { data, error } = useSWR("/admin/target-dashboard", getTargetStats);
-  const targetStats = data?.data?.data;
 
   return (
     <div>

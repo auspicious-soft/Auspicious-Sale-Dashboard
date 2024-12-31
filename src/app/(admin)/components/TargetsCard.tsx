@@ -38,16 +38,14 @@ export default function TargetsCard() {
     minDate
   } = useDateFilter();
 
-  const { data, error, isLoading } = useSWR(
-    getApiUrl('/admin/target-stat', selectedDate),
-    targetValuCard,
+  const { data, error, isLoading, mutate } = useSWR(getApiUrl('/admin/target-stat', selectedDate), targetValuCard,
     {
       revalidateOnFocus: false
     }
   ); 
 
-  const targetValu = data?.data?.data;
-  console.log('targetValu:', targetValu);
+  const targetValu = data?.data?.data;  
+  
 
   const fetchTargetModalStats = async (month: string, year: string) => {
     try {
@@ -150,8 +148,8 @@ export default function TargetsCard() {
       <EditTargetModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        data={modalData}
-        isPending={isPending}
+        data={modalData} 
+        total ={targetValu?.totalTargetAmount}
       />
     </div>
   );
