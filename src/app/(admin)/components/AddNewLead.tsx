@@ -1,7 +1,7 @@
 "use client";
 import React, { ChangeEvent, FormEvent, useState, useTransition } from "react";
 import Notification from "../components/Notification";
-import { SubmitButton } from "@/utils/svgicons";
+import { DollarSymbolIcon, SubmitButton } from "@/utils/svgicons";
 import CustomSelect from "@/app/(website)/components/CustomSelect";
 import {
   createGetLeadServices,
@@ -195,16 +195,20 @@ const AddNewLead: React.FC = () => {
                 value={formData.clientname}
                 placeholder="Name of client"
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="md:w-[calc(33.33%-10px)]">
               <label className="block">Name of bidder</label>
+              <div className="[&_*]:!text-black">
               <CustomSelect
                 value={selectedBidder}
                 options={bidders}
                 onChange={handleBidderChange}
                 placeholder="Name of bidder"
+                required
               />
+              </div>
             </div>
             <div className="md:w-[calc(50%-15px)] lg:w-[calc(25%-15px)]">
               <label className="block">Date of lead</label>
@@ -214,34 +218,44 @@ const AddNewLead: React.FC = () => {
                 value={formData.date}
                 onChange={handleInputChange}
                 placeholder="+12346987"
+                required
               />
             </div>
             <div className="md:w-[calc(50%-15px)] lg:w-[calc(25%-15px)]">
               <label className="block">Platform</label>
+              <div className="[&_*]:!text-black">
               <CustomSelect
                 value={selectedPlatform}
                 options={platform}
                 onChange={handlePlatformChange}
                 placeholder="Select Platform"
+                required
               />
+              </div>
             </div>
             <div className="md:w-[calc(50%-15px)] lg:w-[calc(25%-15px)]">
               <label className="block">Select technology</label>
+              <div className="[&_*]:!text-black">
               <CustomSelect
                 value={selectedTechnology}
                 options={technology}
                 onChange={handleTechnologyChange}
                 placeholder="Select technology"
+                required
               />
+              </div>
             </div>
             <div className="md:w-[calc(50%-15px)] lg:w-[calc(25%-15px)]">
               <label className="block">Status</label>
+              <div className="[&_*]:!text-black">
               <CustomSelect
                 value={selectedStatus}
                 options={status}
                 onChange={handleStatusChange}
                 placeholder="Select Status"
+                required
               />
+              </div>
             </div>
 
             <div className="w-full">
@@ -251,6 +265,7 @@ const AddNewLead: React.FC = () => {
                 value={formData.notes}
                 onChange={handleInputChange}
                 placeholder="Type Notes"
+                required
               ></textarea>
             </div>
           </div>
@@ -261,47 +276,62 @@ const AddNewLead: React.FC = () => {
             </h2>
             <div className="md:w-[calc(33.33%-15px)]">
               <label className="block">Contract Type</label>
+              <div className="[&_*]:!text-black">
               <CustomSelect
                 value={selectedContractType}
                 options={contractType}
                 onChange={handleContractType}
                 placeholder="Contract Type"
+                required
               />
+              </div>
             </div>
             {selectedContractType?.value === "Hourly" && (
               <>
-                <div className="md:w-[calc(33.333%-15px)]">
+                <div className="md:w-[calc(33.333%-15px)] relative">
                   <label className="block">No of Hours</label>
                   <input
                     type="number"
                     name="noofhours"
                     value={formData.noofhours}
-                    placeholder="No of Hours"
+                    placeholder=""
                     onChange={handleInputChange}
+                    required
                   />
+                  <div className="dollar-symbol">
+                   <DollarSymbolIcon />
+                   </div>
                 </div>
-                <div className="md:w-[calc(33.333%-15px)]">
+                <div className="md:w-[calc(33.333%-15px)] relative">
                   <label className="block">Cost per hour</label>
                   <input
                     type="number"
                     name="costperhour"
                     value={formData.costperhour}
-                    placeholder="Cost per hour"
+                    placeholder=""
                     onChange={handleInputChange}
+                    required
                   />
+                   <div className="dollar-symbol">
+                   <DollarSymbolIcon />
+                   </div>
                 </div>
               </>
             )}
             {selectedContractType?.value === "Fixed" && (
-              <div className="md:w-[calc(33.333%-15px)]">
+              <div className="md:w-[calc(33.333%-15px)] relative">
                 <label className="block">Fixed Price</label>
                 <input
                   type="number"
                   name="fixedprice"
                   value={formData.fixedprice}
-                  placeholder="Cost per hour"
+                  placeholder=""
                   onChange={handleInputChange}
+                  required
                 />
+                 <div className="dollar-symbol">
+                   <DollarSymbolIcon />
+                   </div>
               </div>
             )}
           </div>
@@ -318,6 +348,7 @@ const AddNewLead: React.FC = () => {
                 value={formData.clientphone}
                 placeholder="Phone Number"
                 onChange={handleInputChange}
+                required
               />
             </div>
             <div className="md:w-[calc(33.333%-15px)]">
@@ -328,6 +359,7 @@ const AddNewLead: React.FC = () => {
                 value={formData.clientemail}
                 placeholder="Email Address"
                 onChange={handleInputChange}
+                required
               />
             </div>
           </div>

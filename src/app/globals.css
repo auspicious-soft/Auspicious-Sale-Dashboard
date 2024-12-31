@@ -172,10 +172,11 @@ textarea {
   background: #FFF;
   width: 100%;
   padding: 12px 15px;
-  color: #707070;
+  color: #000000;
   font-size: 14px;
   height: 50px;
 }
+
 .progress-line::after {
   content: "";
   position: absolute;
@@ -306,6 +307,34 @@ h2.section-projectName {
 }
 td{
   font-family: var(--font-Raleway-SemiBold) !important;
+}
+.dollar-symbol {
+  position: absolute;
+  bottom: 19px;
+  left: 17px;
+}
+.fomm-wrapper input[type="number"] {
+  padding-left: 28px;
+}
+.fomm-wrapper input::-webkit-input-placeholder, 
+.fomm-wrapper textarea::-webkit-input-placeholder,
+.fomm-wrapper select::-webkit-input-placeholder { 
+  color: #000;
+}
+.fomm-wrapper input::-moz-placeholder,
+.fomm-wrapper textarea::-moz-placeholder,
+.fomm-wrapper select::-moz-placeholder { 
+  color: #000;
+}
+.fomm-wrapper input:-ms-input-placeholder,
+.fomm-wrapper textarea:-ms-input-placeholder,
+.fomm-wrapper select:-ms-input-placeholder { 
+  color: #000;
+}
+.fomm-wrapper input:-moz-placeholder,
+.fomm-wrapper textarea:-moz-placeholder,
+.fomm-wrapper select:-moz-placeholder { 
+  color: #000;
 }
 @media (min-width: 989px) {
   .sub-total-table tr td, .sub-total-table tr th {
