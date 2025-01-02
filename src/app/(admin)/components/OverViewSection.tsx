@@ -80,7 +80,7 @@ const OverViewSection: React.FC = () => {
               }
             };
             mutate(updatedData, false);
-            // window.location.reload();  
+            window.location.reload();  
           });
           
           toast.success("Bid status updated successfully");
