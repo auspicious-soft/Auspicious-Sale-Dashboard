@@ -40,6 +40,7 @@ const RecentLeads: React.FC = () => {
       if (response.status === 200) {
         toast.success("Status updated successfully");
         mutate();
+        window.location.reload();  
       } else {
         toast.error("Failed to update status");
       }
