@@ -35,7 +35,6 @@ export default function TargetsCard() {
   const { data, error, isLoading } = useSWR(`/admin/target-stat?month=${selectedMonth}&year=${selectedYear}`, targetValuCard );
 
   const targetValu = data?.data?.data;
-  console.log('targetValu:', targetValu);
 
   const currentMonth = dayjs().month() + 1; // Get the current month (1-12)
   const currentYear = dayjs().year();
@@ -52,7 +51,6 @@ export default function TargetsCard() {
   
   const {data: targetData, mutate} = useSWR(`/admin/target-data?month=${selectedMonth}&year=${selectedYear}`,targetModalStats)
    const modalData = targetData?.data?.groupedUsers;
-   console.log('modalData:', modalData);
 
 
   const openTargetModal = () => {
