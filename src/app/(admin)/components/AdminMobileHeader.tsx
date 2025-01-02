@@ -67,13 +67,13 @@ const AdminMobileHeader = () => {
             </Link>
           </li>
           <li className={isActive('/leads')}>
-            <Link href="/leads">
+            <Link href="/leads" onClick={() => handleLinkClick("/leads")}>
               {isActive('/leads') ? <LeadsActiveIcon /> : <LeadsIcon />}
               Leads
             </Link>
           </li>
           <li className={isActive('/target')}>
-            <Link href="/target">
+            <Link href="/target"  onClick={() => handleLinkClick("/target")}>
               {isActive('/target') ? <TargetActiveIcon /> : <TargetIcon />}
               Target
             </Link>

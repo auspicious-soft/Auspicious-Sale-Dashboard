@@ -35,7 +35,6 @@ export default function TargetsCard() {
   const { data, error, isLoading } = useSWR(selectedMonth? `/admin/target-stat?month=${selectedMonth}&year=${selectedYear}`: null, targetValuCard );
 
   const targetValu = data?.data?.data;
-  console.log('targetValu:', targetValu);
 
   const currentMonth = dayjs().month() + 1; // Get the current month (1-12)
   const currentYear = dayjs().year();
