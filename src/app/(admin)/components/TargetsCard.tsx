@@ -41,9 +41,17 @@ export default function TargetsCard() {
 
   useEffect(() => {
     if (selectedDate) {
-      const month = selectedDate.month() + 1; 
-      const year = selectedDate.year();
+      let month = selectedDate.month() + 1; 
+      let year = selectedDate.year();
   
+      if (typeof month === 'undefined' || month === null || isNaN(month)) {
+        month = new Date().getMonth() + 1; // Default to the current month (0-indexed, so add 1)
+    }
+ 
+    if (typeof year === 'undefined' || year === null || isNaN(year)) {
+        year = new Date().getFullYear(); // Default to the current year
+    }
+
       setSelectedYear(year);
       setSelectedMonth(month);
     } 
