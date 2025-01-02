@@ -284,8 +284,8 @@ export const HamburgerIcon=() => (
 export const ViewIcon = () => (
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="20" height="20" rx="10" fill="#5D5FEF"/>
-<path d="M6.10722 10.1341C6.05189 10.0465 6.02421 10.0027 6.00872 9.9351C5.99709 9.88435 5.99709 9.8043 6.00872 9.75355C6.02421 9.68598 6.05189 9.64218 6.10722 9.55453C6.56451 8.83046 7.92567 7 10 7C12.0743 7 13.4355 8.83046 13.8928 9.55453C13.9481 9.64218 13.9758 9.68598 13.9913 9.75355C14.0029 9.8043 14.0029 9.88435 13.9913 9.9351C13.9758 10.0027 13.9481 10.0465 13.8928 10.1341C13.4355 10.8582 12.0743 12.6887 10 12.6887C7.92567 12.6887 6.56451 10.8582 6.10722 10.1341Z" stroke="white" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10 11.0633C10.6733 11.0633 11.219 10.5176 11.219 9.84433C11.219 9.17108 10.6733 8.62533 10 8.62533C9.32675 8.62533 8.78101 9.17108 8.78101 9.84433C8.78101 10.5176 9.32675 11.0633 10 11.0633Z" stroke="white" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.10722 10.1341C6.05189 10.0465 6.02421 10.0027 6.00872 9.9351C5.99709 9.88435 5.99709 9.8043 6.00872 9.75355C6.02421 9.68598 6.05189 9.64218 6.10722 9.55453C6.56451 8.83046 7.92567 7 10 7C12.0743 7 13.4355 8.83046 13.8928 9.55453C13.9481 9.64218 13.9758 9.68598 13.9913 9.75355C14.0029 9.8043 14.0029 9.88435 13.9913 9.9351C13.9758 10.0027 13.9481 10.0465 13.8928 10.1341C13.4355 10.8582 12.0743 12.6887 10 12.6887C7.92567 12.6887 6.56451 10.8582 6.10722 10.1341Z" stroke="white" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M10 11.0633C10.6733 11.0633 11.219 10.5176 11.219 9.84433C11.219 9.17108 10.6733 8.62533 10 8.62533C9.32675 8.62533 8.78101 9.17108 8.78101 9.84433C8.78101 10.5176 9.32675 11.0633 10 11.0633Z" stroke="white" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round"/>
 </svg>
 );
 export const ButtonIcon = () => (
@@ -317,7 +317,7 @@ export const BidSaveIcon = () => (
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="20" height="20" rx="10" fill="#5D5FEF"/>
 <g clip-path="url(#clip0_312_93)">
-<path d="M14 7L8.5 12.5L6 10" stroke="white" stroke-width="1.2" strokeWidth="round" stroke-linejoin="round"/>
+<path d="M14 7L8.5 12.5L6 10" stroke="white" strokeWidth="1.2"  strokeLinejoin="round"/>
 </g>
 <defs>
 <clipPath id="clip0_312_93">
