@@ -5,7 +5,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
+        // email: { label: "Email", type: "email" },
         username: { label: "username", type: "text" },
         password: { label: "Password", type: "password" },
       },
@@ -13,7 +13,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (credentials.username) {
           return {
             username: credentials.username,
-            email: credentials.email,
             fullName: credentials.fullName,
             id: credentials._id,
             role: credentials.role,
@@ -30,7 +29,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.username = (user as any).username;
-        token.email = (user as any).email;
         token.fullName = (user as any).fullName;
         token.picture = (user as any).profilePic;
         token.role = (user as any).role;
@@ -43,7 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string;
         (session as any).user.fullName = token.fullName;
-        (session as any).user.email = token.email;
+        (session as any).user.email = token.username;
+        (session as any).user.name = token.fullName;
         (session as any).user.username = token.username;
         session.user.image = token.picture;
         (session as any).user.role = token.role;
