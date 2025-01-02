@@ -205,7 +205,7 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total, m
                 <h6 className="w-full text-[#1C2329] text-[16px] mb-2 font-RalewayMedium">
                   {section.key}
                 </h6>
-                <div className="flex gap-5">
+                <div className="flex gap-5 flex-col md:flex-row">
                   <div className="w-full md:w-[calc(25%-5px)]">
                     <label className="block text-gray-700 mb-1">
                       Total Target

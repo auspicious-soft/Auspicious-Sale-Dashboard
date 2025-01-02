@@ -22,7 +22,7 @@ const SideNav = () => {
     router.push('/');
   }
   return (
-    <div className={`sideNav ${isCollapsed ? 'collapsed' : ''} h-[100%] overflo-custom`}>
+    <div className={`sideNav ${isCollapsed ? 'collapsed' : ''} h-[100%] overflo-custom`} >
       <div className="">
         <div className="mb-[40px] ">
               <Link href="/dashboard" className="inline-block">
