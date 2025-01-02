@@ -32,35 +32,25 @@ export default function TargetsCard() {
   const { selectedDate, setSelectedDate, getApiUrl, maxDate, minDate } =
   useDateFilter();
   
-  const { data, error, isLoading } = useSWR(`/admin/target-stat?month=${selectedMonth}&year=${selectedYear}`, targetValuCard );
+  const { data, error, isLoading } = useSWR(selectedMonth? `/admin/target-stat?month=${selectedMonth}&year=${selectedYear}`: null, targetValuCard );
 
-  const targetValu = data?.data?.data;
-  console.log('targetValu:', targetValu);
+  const targetValu = data?.data?.data; 
 
   const currentMonth = dayjs().month() + 1; // Get the current month (1-12)
   const currentYear = dayjs().year();
 
   useEffect(() => {
     if (selectedDate) {
-      let month = selectedDate.month() + 1; 
-      let year = selectedDate.year();
+      const month = selectedDate.month() + 1; 
+      const year = selectedDate.year();
   
-      if (typeof month === 'undefined' || month === null || isNaN(month)) {
-        month = new Date().getMonth() + 1; // Default to the current month (0-indexed, so add 1)
-    }
- 
-    if (typeof year === 'undefined' || year === null || isNaN(year)) {
-        year = new Date().getFullYear(); // Default to the current year
-    }
-
       setSelectedYear(year);
       setSelectedMonth(month);
     } 
   }, [selectedDate]);
   
-  const {data: targetData, mutate} = useSWR(`/admin/target-data?month=${selectedMonth}&year=${selectedYear}`,targetModalStats)
+  const {data: targetData, mutate} = useSWR(selectedMonth? `/admin/target-data?month=${selectedMonth}&year=${selectedYear}` : null ,targetModalStats)
    const modalData = targetData?.data?.groupedUsers;
-   console.log('modalData:', modalData);
 
 
   const openTargetModal = () => {

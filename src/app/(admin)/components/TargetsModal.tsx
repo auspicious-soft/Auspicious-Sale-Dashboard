@@ -159,10 +159,8 @@ const EditTargetModal: React.FC<ModalProps> = ({ isOpen, onClose, data, total, m
           }))
         );
         const payload = { targets };
-        console.log('payload:', payload);
   
         const response = await updateTargetModal("/admin/target", payload);
-        console.log('response:', response);
       
         if (response.status === 200) { 
           toast.success("Targets updated successfully");
