@@ -298,9 +298,6 @@ const AddNewLead: React.FC = () => {
                     onChange={handleInputChange}
                     required
                   />
-                  <div className="dollar-symbol">
-                   <DollarSymbolIcon />
-                   </div>
                 </div>
                 <div className="md:w-[calc(33.333%-15px)] relative">
                   <label className="block">Cost per hour</label>
